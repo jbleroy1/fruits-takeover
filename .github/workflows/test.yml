@@ -1,0 +1,21 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Bot-play the game
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: UI flow, saving, unlocking, tablet controls, every hero
+        run: npm test
+      - name: Every one of the 154 levels, as Sonic
+        run: node tools/harness.js game.js all

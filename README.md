@@ -178,13 +178,17 @@ and no knockback, so these runs test that every level is **completable**, not th
 
 ## Publishing
 
-The game is plain static files, so GitHub Pages serves it as-is — no build step, nothing to
-configure. `.github/workflows/pages.yml` runs the test suites on every push and then publishes the
-repository root to Pages, enabling Pages itself the first time it runs. That deploy job needs a public
-repository (free Pages does not run on a private one) and skips itself while the repository is
-private. Note that *re-running* an older workflow run replays its original event payload, so after
-flipping the repository to public you need a **fresh push** (or a `workflow_dispatch` run) for the
-deploy job to fire.
+The game is plain static files, so GitHub Pages serves the repository root as-is — no build step and
+no deploy workflow. It is set up once, under **Settings → Pages → Build and deployment**:
+
+- **Source**: *Deploy from a branch*
+- **Branch**: `main`, folder `/ (root)` → **Save**
+
+Every push to `main` then republishes the site a minute later. `.nojekyll` keeps Pages from running
+the files through Jekyll. Free Pages needs the repository to be **public**.
+
+`.github/workflows/test.yml` is separate from publishing: on every push it runs `npm test` and a
+full 154-level bot run, so a broken build is caught even though it would still deploy.
 
 ## Adding to the game
 
