@@ -18,15 +18,22 @@ local server and the tests.
 npm start          # http://localhost:8080  - the home page, with both games one click away
 npm test           # the home page check, then every game's own test suite
 npm run home       # rebuild the home page's game list
+npm run new-game -- my-game "A one line blurb"    # scaffold a new game in the right folder
 ```
 
 ## Adding a game
 
-1. Drop the game in its own folder at the top level, with an `index.html` in it.
-2. Run `npm run home` (or just push — see below).
+```sh
+npm run new-game -- space-racer "Dodge the asteroids."
+```
 
-That is the whole process: **every top-level folder holding an `index.html` becomes a card on the
-home page.** Nothing lists games by hand.
+That creates `space-racer/` in this repository — the only place a game belongs — with a working page,
+`game.js`, `game.json`, `package.json` and its own server, then rebuilds the home page so the card is
+already there. `npm start` and the game is at `http://localhost:8080/space-racer/`.
+
+By hand it is just as simple: drop the folder in with an `index.html` inside and run `npm run home`.
+Either way, **every top-level folder holding an `index.html` becomes a card on the home page.**
+Nothing lists games by hand.
 
 To choose how the card looks, add a `game.json` to the folder:
 
@@ -72,6 +79,7 @@ Takeover levels** headlessly.
 | `games.json` | the same list as data, rebuilt by `npm run home` |
 | `tools/build-home.js` | scans the folders and writes both of the above (`--check` fails if they are stale) |
 | `tools/serve.js` | zero-dependency static server for the whole repository |
+| `tools/new-game.js` | scaffolds a new game folder here and rebuilds the home page |
 | `sonic4/`, `fruits-takeover/` | the games, each self-contained with its own README and tests |
 
 ## About these projects
