@@ -1,14 +1,14 @@
 {
-  "name": "sonic4",
+  "name": "arcade",
   "version": "1.0.0",
-  "description": "Sonic 4: Shattered Horizon - a 2D side-scrolling platformer: 17 zones, 102 acts, 50 branch levels, 4 playable heroes.",
+  "description": "Home-made browser games: a home page that lists every game folder, and the games themselves.",
   "private": true,
   "scripts": {
     "start": "node tools/serve.js",
-    "test": "node tools/harness.js game.js flow && node tools/harness.js game.js heroes",
-    "test:main": "node tools/harness.js game.js main",
-    "test:branch": "node tools/harness.js game.js branch",
-    "test:all": "node tools/harness.js game.js all"
+    "home": "node tools/build-home.js",
+    "test": "node tools/build-home.js --check && npm test --prefix sonic4 && npm test --prefix fruits-takeover",
+    "test:sonic4": "npm test --prefix sonic4",
+    "test:fruits": "npm test --prefix fruits-takeover"
   },
   "engines": { "node": ">=18" }
 }

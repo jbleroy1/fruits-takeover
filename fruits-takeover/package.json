@@ -1,0 +1,12 @@
+{
+  "name": "fruits-takeover",
+  "version": "1.0.0",
+  "description": "A 2D top-down survival shooter: 30 levels of fruit taking over the world.",
+  "private": true,
+  "scripts": {
+    "start": "node tools/serve.js",
+    "test": "node tools/harness.js game.js god && node tools/harness.js game.js flow",
+    "test:balance": "node tools/harness.js game.js normal"
+  },
+  "engines": { "node": ">=18" }
+}

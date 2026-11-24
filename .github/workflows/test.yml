@@ -8,14 +8,21 @@ on:
 
 jobs:
   test:
-    name: Bot-play the game
+    name: Check the home page and bot-play every game
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: UI flow, saving, unlocking, tablet controls, every hero
-        run: npm test
-      - name: Every one of the 154 levels, as Sonic
-        run: node tools/harness.js game.js all
+
+      - name: The home page lists every game folder
+        run: node tools/build-home.js --check
+
+      - name: Sonic 4 - menus, saving, tablet controls, every hero
+        run: npm test --prefix sonic4
+      - name: Sonic 4 - all 154 levels
+        run: node sonic4/tools/harness.js sonic4/game.js all
+
+      - name: Fruits Takeover - all 30 levels, then the UI flow
+        run: npm test --prefix fruits-takeover

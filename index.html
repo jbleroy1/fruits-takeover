@@ -1,310 +1,176 @@
 <!doctype html>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Sonic 4: Shattered Horizon</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arcade</title>
+<meta name="description" content="Home-made browser games - pick one and play.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@400;600;800&display=swap">
 <style>
 :root{
-  --bg:#060a12; --panel:#101a28; --panel2:#17243a; --line:#27374f;
-  --ink:#eef4ff; --muted:#8fa3c0;
-  --blue:#2f8ff5; --ring:#ffd24a; --red:#e8485a; --green:#3ddc84; --pink:#f368a8;
+  --bg:#05080f; --panel:#101a28; --panel2:#17243a; --line:#27374f;
+  --ink:#eef4ff; --muted:#8fa3c0; --gold:#ffd24a;
   --f-dis:"Bungee","Arial Black",system-ui,sans-serif;
   --f-ui:"Outfit",system-ui,-apple-system,Segoe UI,sans-serif;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{overscroll-behavior:none}
-body{margin:0;color:var(--ink);font-family:var(--f-ui);-webkit-text-size-adjust:100%;
-  -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;
-  background:radial-gradient(1200px 620px at 50% -12%,#15304f 0%,rgba(0,0,0,0) 62%),linear-gradient(#060a12,#04060c 60%,#060a12)}
-.wrap{padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px));
-  padding-block:14px 22px;max-width:1120px;margin:0 auto}
-.topbar{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:9px}
-.brand{font-family:var(--f-dis);font-size:clamp(17px,3.2vw,25px);letter-spacing:.02em}
-.brand i{color:var(--blue);font-style:normal}
-.brand b{color:var(--ring);font-weight:400}
-.tophint{color:var(--muted);font-size:12px;letter-spacing:.07em;text-transform:uppercase}
-.stage{position:relative;aspect-ratio:16/9;width:min(100%,calc((100vh - 140px) * 16 / 9));
-  width:min(100%,calc((100dvh - 140px) * 16 / 9));min-width:260px;margin:0 auto;
-  border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#09101a;
-  box-shadow:0 26px 64px rgba(0,0,0,.65), inset 0 0 0 1px rgba(255,255,255,.03)}
-canvas{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
+body{margin:0;min-height:100dvh;color:var(--ink);font-family:var(--f-ui);
+  -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;
+  background:
+    radial-gradient(1100px 560px at 15% -10%, #1b3a5e 0%, rgba(0,0,0,0) 60%),
+    radial-gradient(900px 500px at 85% 0%, #3a1b4e 0%, rgba(0,0,0,0) 58%),
+    linear-gradient(#05080f,#04060c 60%,#05080f)}
+.wrap{max-width:1040px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:clamp(22px,5vw,54px) 40px}
+header{text-align:center;margin-bottom:clamp(18px,4vw,38px)}
+h1{font-family:var(--f-dis);margin:0;line-height:.95;letter-spacing:.02em;
+  font-size:clamp(34px,9vw,76px);color:var(--gold);
+  text-shadow:0 5px 0 #7a5a10, 0 0 36px rgba(255,210,74,.3)}
+header p{color:var(--muted);margin:10px auto 0;max-width:56ch;font-size:clamp(12px,1.7vw,16px);line-height:1.6}
+header p b{color:var(--ink);font-weight:700}
 
-/* ------------------------------- HUD ------------------------------- */
-.hud{position:absolute;inset:0;pointer-events:none;font-size:clamp(9px,1.25vw,13px)}
-.hud .corner{position:absolute;padding:clamp(6px,1.2vw,12px)}
-.tl{top:0;left:0;display:flex;flex-direction:column;gap:3px}
-.tr{top:0;right:0;text-align:right;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
-.stat{font-family:var(--f-dis);letter-spacing:.04em;text-shadow:0 2px 0 rgba(0,0,0,.6)}
-.stat u{text-decoration:none;color:var(--muted);font-family:var(--f-ui);font-weight:800;font-size:.78em;letter-spacing:.12em}
-.stat .v{font-size:1.45em}
-#hud-rings{color:var(--ring)} #hud-score{color:#fff} #hud-lives{color:var(--green)}
-#hud-char.sup{color:var(--ring);text-shadow:0 0 12px rgba(255,210,74,.8)}
-#hud-time.low{color:var(--red)} #hud-time.good{color:var(--green)}
-.obj{position:absolute;top:0;left:50%;transform:translateX(-50%);padding:clamp(4px,.9vw,8px) clamp(9px,1.7vw,18px);
-  background:rgba(6,10,18,.72);border:1px solid var(--line);border-top:none;border-radius:0 0 11px 11px;text-align:center;max-width:56%}
-.obj .n{font-family:var(--f-dis);font-size:.95em;letter-spacing:.03em}
-.obj .o{color:var(--blue);font-weight:700;font-size:.88em}
-#hud-need{display:none;font-family:var(--f-dis);color:var(--ring);font-size:1.05em;
-  text-shadow:0 0 10px rgba(255,210,74,.55)}
-#hud-need.show{display:block}
-#hud-need.open{color:var(--green);text-shadow:0 0 10px rgba(61,220,132,.6)}
-#hud-em{display:flex;gap:3px;justify-content:flex-end}
-#hud-em .em{width:clamp(7px,1.1vw,11px);height:clamp(7px,1.1vw,11px);border-radius:2px;background:#1d2738;
-  border:1px solid #2d3a52;transform:rotate(45deg);display:block}
-#hud-em .em.on{background:var(--c);border-color:#fff8;box-shadow:0 0 8px var(--c)}
-#hud-meter{display:none;width:clamp(50px,8vw,84px);height:clamp(5px,.8vw,8px);border:1px solid var(--line);
-  border-radius:99px;overflow:hidden;background:#0d1626}
-#hud-meter.show{display:block}
-#hud-meterfill{height:100%;width:0;background:linear-gradient(90deg,#4fd0ff,#9bf0ff)}
-.bossbar{position:absolute;left:50%;bottom:clamp(8px,1.6vw,16px);transform:translateX(-50%);width:62%;text-align:center;display:none}
-.bossbar.show{display:block}
-.bossbar .nm{font-family:var(--f-dis);font-size:1em;color:var(--red);letter-spacing:.06em;text-shadow:0 2px 0 #000}
-.bossbar .bar{height:clamp(8px,1.3vw,13px);border:1px solid #4a2130;border-radius:99px;overflow:hidden;background:#13080c}
-.bossbar .bar>span{display:block;height:100%;width:100%;background:linear-gradient(90deg,#e8485a,#ff9b3d);transition:width .15s linear}
-.toast{position:absolute;left:50%;top:34%;transform:translateX(-50%);font-family:var(--f-dis);
-  font-size:clamp(13px,2.5vw,28px);color:#fff;text-shadow:0 3px 0 #000,0 0 18px rgba(255,210,74,.55);
-  opacity:0;transition:opacity .22s;text-align:center;width:84%}
-.toast.on{opacity:1}
-
-/* --------------------------- touch controls --------------------------- */
-#touch{position:absolute;inset:0;pointer-events:none;display:none;z-index:4}
-body.istouch #touch{display:block}
-#touch.hide{display:none}
-.tbtn{position:absolute;pointer-events:auto;aspect-ratio:1;border-radius:50%;
-  background:rgba(255,255,255,.13);border:2px solid rgba(255,255,255,.3);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-family:var(--f-dis);
-  text-shadow:0 2px 0 rgba(0,0,0,.55);touch-action:none;
-  user-select:none;-webkit-user-select:none;transition:background .06s}
-.tbtn.on,.tbtn:active{background:rgba(255,255,255,.4);border-color:#fff;transform:scale(.96)}
-.tbtn.dpad{width:16%;font-size:clamp(13px,2.8vw,28px)}
-#t-left{left:1.5%;bottom:4%}
-#t-right{left:19%;bottom:4%}
-#t-down{left:10%;bottom:27%;width:14%;font-size:clamp(11px,2.3vw,23px)}
-#t-jump{right:1.5%;bottom:4%;width:20%;font-size:clamp(9px,1.7vw,16px);
-  background:rgba(70,190,255,.26);border-color:rgba(170,230,255,.6)}
-#t-attack{right:23.5%;bottom:6%;width:15%;font-size:clamp(10px,1.9vw,19px);
-  background:rgba(243,104,168,.26);border-color:rgba(255,180,215,.6)}
-.tbtn.sys{width:9%;font-size:clamp(8px,1.5vw,15px);background:rgba(0,0,0,.42);border-color:rgba(255,255,255,.22)}
-/* kept clear of the boss health bar that sits along the bottom centre */
-#t-pause{left:43.5%;bottom:20%} #t-full{left:52.5%;bottom:20%}
-.rotate{display:none;text-align:center;color:var(--muted);font-size:13px;padding:8px 14px}
-@media (hover:none) and (pointer:coarse){ #touch{display:block} }
-
-/* ------------------------------ screens ------------------------------ */
-.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
-  gap:clamp(7px,1.5vh,16px);padding:clamp(10px,2.6vw,30px);overflow:auto;background:rgba(5,8,14,.88);
-  backdrop-filter:blur(3px);text-align:center}
-.screen.show{display:flex}
-h1.t{font-family:var(--f-dis);margin:0;line-height:.92;font-size:clamp(24px,6.6vw,58px);letter-spacing:.01em}
-h1.t span{display:block}
-h1.t .a{color:var(--blue);text-shadow:0 4px 0 #11326a,0 0 30px rgba(47,143,245,.4)}
-h1.t .b{color:var(--ring);text-shadow:0 4px 0 #7a5a10,0 0 30px rgba(255,210,74,.3);font-size:.52em;letter-spacing:.06em}
-h2.t{font-family:var(--f-dis);margin:0;font-size:clamp(15px,3.2vw,28px);letter-spacing:.03em}
-.tag{color:var(--muted);max-width:66ch;font-size:clamp(11px,1.5vw,15px);line-height:1.55;margin:0}
-.tag em{color:var(--ink);font-style:normal;font-weight:700}
-.row{display:flex;gap:9px;flex-wrap:wrap;justify-content:center}
-button{font-family:var(--f-ui);font-weight:800;font-size:clamp(11px,1.45vw,15px);letter-spacing:.04em;color:#05121f;
-  background:linear-gradient(#8fd0ff,#2f8ff5);border:none;border-bottom:3px solid #1b5aa8;border-radius:10px;
-  padding:.6em 1.2em;cursor:pointer;transition:transform .08s,filter .12s}
-button:hover{filter:brightness(1.1)}
-button:active{transform:translateY(2px);border-bottom-width:1px}
-button:focus-visible{outline:2px solid var(--ring);outline-offset:3px}
-button.ghost{background:#162236;color:var(--ink);border-bottom:3px solid #0b1220;box-shadow:inset 0 0 0 1px var(--line)}
-button.gold{background:linear-gradient(#ffe79a,#ffc63d);border-bottom-color:#9c7714;color:#1b1203}
-button:disabled{opacity:.38;cursor:not-allowed}
-.statline{display:flex;gap:clamp(9px,2.2vw,24px);flex-wrap:wrap;justify-content:center;color:var(--muted);font-size:clamp(10px,1.35vw,13.5px)}
-.statline b{display:block;color:var(--ink);font-family:var(--f-dis);font-size:1.45em;font-weight:400}
-
-/* character cards */
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(6px,1.2vw,14px);width:100%;max-width:900px}
-@media (max-width:620px){ .cards{grid-template-columns:repeat(2,1fr)} }
-.card{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--panel);color:var(--ink);
-  border:1px solid var(--line);border-bottom:3px solid #0b1220;border-radius:12px;padding:clamp(7px,1.3vw,14px);text-align:center}
-.card.sel{outline:2px solid var(--ring);background:var(--panel2)}
-.card .dot{width:clamp(20px,3.4vw,34px);height:clamp(20px,3.4vw,34px);border-radius:50%;display:block;margin-bottom:4px}
-.card b{font-family:var(--f-dis);font-size:clamp(11px,1.6vw,16px);font-weight:400}
-.card i{color:var(--muted);font-style:normal;font-size:clamp(8.5px,1.1vw,11.5px);letter-spacing:.04em;text-transform:uppercase}
-.card u{text-decoration:none;color:var(--ring);font-weight:800;font-size:clamp(9px,1.2vw,12.5px)}
-.card p{margin:3px 0 0;color:var(--muted);font-size:clamp(8.5px,1.1vw,11.5px);line-height:1.4}
-
-/* level map */
-.maphead{display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap}
-.maphead h2{margin:0}
-.badge{background:#13203a;border:1px solid var(--line);border-radius:99px;padding:.25em .8em;color:var(--muted);font-size:clamp(9px,1.2vw,12px);font-weight:700}
-#maplist{display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(5px,.9vw,10px);width:100%;max-width:920px}
-@media (max-width:760px){ #maplist{grid-template-columns:repeat(3,1fr)} }
-.lvhead{grid-column:1/-1;color:var(--muted);font-size:clamp(9px,1.15vw,12px);text-transform:uppercase;
-  letter-spacing:.14em;font-weight:800;text-align:left;margin-top:4px}
-.lv{display:flex;flex-direction:column;gap:1px;align-items:flex-start;text-align:left;background:var(--panel);
-  color:var(--ink);border:1px solid var(--line);border-bottom:3px solid #0b1220;border-radius:9px;
-  padding:clamp(5px,.9vw,9px);font-size:clamp(8.5px,1.05vw,11.5px)}
-.lv b{font-family:var(--f-dis);font-weight:400;font-size:1.12em}
-.lv i{font-style:normal;color:var(--muted);font-size:.92em;line-height:1.25}
-.lv u{text-decoration:none;color:var(--blue);font-weight:800;font-size:.88em}
-.lv.done{background:#10261c;border-color:#1f5a3a} .lv.done u{color:var(--green)}
-.lv.boss{background:#2a1118;border-color:#5a2130} .lv.boss b{color:#ff7a8a}
-.lv.branch{background:#1a1430;border-color:#3a2a62} .lv.branch b{color:#c9a8ff}
-.lv.super{background:#2c2510;border-color:#6d5c19} .lv.super b{color:var(--ring)}
-.lv.lock u{color:var(--muted)}
-/* fill the screen on tablets and phones */
-@media (max-width:1000px), (max-height:660px){
-  .wrap{padding:0;max-width:none;min-height:100vh;min-height:100dvh;
-    display:flex;flex-direction:column;justify-content:center}
-  .topbar{display:none}
-  .stage{border:none;border-radius:0;box-shadow:none;
-    width:min(100vw, calc(100vh * 16 / 9));
-    width:min(100vw, calc(100dvh * 16 / 9))}
-}
-@media (orientation:portrait) and (pointer:coarse){ .rotate{display:block} }
-body.istouch{overflow:hidden}
-body.istouch button{padding:.72em 1.4em;font-size:clamp(12px,2.1vw,16px)}
-body.istouch .lv{padding:9px}
-body.istouch #maplist{grid-template-columns:repeat(3,1fr)}
-
-.keys{display:grid;grid-template-columns:auto auto;gap:4px 14px;color:var(--muted);font-size:clamp(10px,1.3vw,13px);text-align:left}
-.keys b{color:var(--ink)}
-.small{color:var(--muted);font-size:clamp(9px,1.15vw,12px)}
+.grid{display:grid;gap:clamp(10px,1.8vw,18px);grid-template-columns:repeat(auto-fill,minmax(285px,1fr))}
+a.card{display:flex;flex-direction:column;gap:9px;text-decoration:none;color:var(--ink);
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-bottom:4px solid var(--c,#2f8ff5);border-radius:16px;
+  padding:clamp(13px,2vw,20px);transition:transform .1s,box-shadow .16s,border-color .16s;
+  box-shadow:0 14px 34px rgba(0,0,0,.45)}
+a.card:hover{transform:translateY(-3px);box-shadow:0 20px 44px rgba(0,0,0,.6)}
+a.card:active{transform:translateY(0)}
+a.card:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.top{display:flex;align-items:center;gap:12px}
+.ico{width:clamp(44px,7vw,58px);height:clamp(44px,7vw,58px);flex:none;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:clamp(23px,3.6vw,31px);
+  background:color-mix(in srgb, var(--c,#2f8ff5) 22%, #0c1522);
+  border:1px solid color-mix(in srgb, var(--c,#2f8ff5) 45%, #0c1522)}
+.name{font-family:var(--f-dis);font-weight:400;font-size:clamp(14px,2.1vw,19px);line-height:1.15;letter-spacing:.01em}
+.dir{color:var(--muted);font-size:clamp(10px,1.3vw,12px);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.blurb{color:var(--muted);font-size:clamp(11.5px,1.5vw,14px);line-height:1.55;margin:0;flex:1}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-size:clamp(9.5px,1.2vw,11.5px);font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);background:#0d1726;border:1px solid var(--line);border-radius:99px;padding:3px 9px}
+.play{align-self:flex-start;font-family:var(--f-dis);font-size:clamp(11px,1.5vw,14px);
+  color:#06111d;background:var(--c,#2f8ff5);border-radius:9px;padding:.5em 1.1em;letter-spacing:.04em}
+.empty,.note{color:var(--muted);text-align:center;font-size:clamp(11.5px,1.5vw,14px);line-height:1.6}
+.empty{border:1px dashed var(--line);border-radius:14px;padding:30px 18px}
+.note{margin-top:clamp(20px,4vw,38px)}
+.note code{color:var(--gold);background:#0d1726;border:1px solid var(--line);border-radius:6px;padding:1px 6px;
+  font-size:.92em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.fresh{border-bottom-style:dashed}
 </style>
 
 <div class="wrap">
-  <div class="topbar">
-    <div class="brand"><i>SONIC 4</i> <b>Shattered Horizon</b></div>
-    <div class="tophint">102 acts &middot; 50 branch levels &middot; 2 Super finale &middot; 4 heroes</div>
-  </div>
-
-  <div class="stage">
-    <canvas id="c" width="960" height="540"></canvas>
-
-    <div class="hud" id="hud">
-      <div class="corner tl">
-        <div class="stat"><u>RINGS</u> <span class="v" id="hud-rings">0</span></div>
-        <div class="stat"><u>SCORE</u> <span class="v" id="hud-score">0</span></div>
-        <div class="stat"><u>LIVES</u> <span class="v" id="hud-lives">3</span></div>
-      </div>
-      <div class="corner tr">
-        <div class="stat"><u>TIME</u> <span class="v" id="hud-time">0:00</span></div>
-        <div class="stat" id="hud-char">Sonic</div>
-        <div id="hud-meter"><div id="hud-meterfill"></div></div>
-        <div id="hud-em"></div>
-      </div>
-      <div class="obj">
-        <div class="n" id="hud-zone">Verdant Hills - Act 1</div>
-        <div class="o" id="hud-obj">Reach the goal post</div>
-        <div id="hud-need">RINGS 0/0</div>
-      </div>
-      <div class="bossbar" id="bossbar">
-        <div class="nm" id="bossname">Egg Hornet</div>
-        <div class="bar"><span id="bosshp"></span></div>
-      </div>
-      <div class="toast" id="toast"></div>
-    </div>
-
-    <div id="touch">
-      <div class="tbtn dpad" id="t-left">&#9664;</div>
-      <div class="tbtn dpad" id="t-right">&#9654;</div>
-      <div class="tbtn dpad" id="t-down">&#9660;</div>
-      <div class="tbtn" id="t-jump">JUMP</div>
-      <div class="tbtn" id="t-attack">X</div>
-      <div class="tbtn sys" id="t-pause">| |</div>
-      <div class="tbtn sys" id="t-full">[ ]</div>
-    </div>
-
-    <!-- title -->
-    <div class="screen show" id="scr-title">
-      <h1 class="t"><span class="a">SONIC 4</span><span class="b">SHATTERED HORIZON</span></h1>
-      <p class="tag">Dr. Eggman shattered the sky into <em>17 zones</em>. Pick your hero and run, fly, glide
-        or hammer your way through <em>102 acts</em> and <em>50 branch levels</em>. Collect rings, smash badniks,
-        free the animals and find the <em>7 Chaos Emeralds</em> &mdash; then go <em>Super</em> for the
-        two <em>Doomsday</em> levels and tear Eggman's giant robot apart.</p>
-      <div class="row">
-        <button id="b-play">PLAY</button>
-        <button class="ghost" id="b-help">HOW TO PLAY</button>
-        <button class="ghost" id="b-full">FULLSCREEN</button>
-      </div>
-      <div class="statline" id="savebar"></div>
-    </div>
-
-    <!-- how to play -->
-    <div class="screen" id="scr-help">
-      <h2 class="t">HOW TO PLAY</h2>
-      <div class="keys">
-        <b>Move</b><span>A / D or &larr; / &rarr;</span>
-        <b>Jump</b><span>Space, W, &uarr;, Z or K</span>
-        <b>Roll / crouch</b><span>S or &darr; (roll while running)</span>
-        <b>Attack</b><span>X, J or Shift</span>
-        <b>Second ability</b><span>Jump again in mid-air</span>
-        <b>Spin dash</b><span>hold &darr; + tap Jump, then release &darr; (Sonic)</span>
-        <b>Pause</b><span>P or Esc</span>
-        <b>Restart level</b><span>R</span>
-        <b>Mute</b><span>M</span>
-        <b>Tablet / phone</b><span>on-screen buttons, <b>| |</b> pauses, <b>[ ]</b> is fullscreen</span>
-      </div>
-      <p class="tag">Rings are your health: get hit with rings and you drop them, get hit with none and you lose a life.
-        Break the item monitors for shields, speed shoes, invincibility and extra lives. Hit a checkpoint and you
-        restart from there. With all 7 Chaos Emeralds and 50 rings, press <em>Attack</em> in mid-air to go Super.</p>
-      <button class="ghost" id="b-helpback">BACK</button>
-    </div>
-
-    <!-- character select -->
-    <div class="screen" id="scr-chars">
-      <h2 class="t">CHOOSE YOUR HERO</h2>
-      <div class="cards" id="charcards"></div>
-      <p class="small">All four are playable in every one of the 152 levels. Switch any time from the zone map.</p>
-      <button class="ghost" id="b-charback">BACK</button>
-    </div>
-
-    <!-- zone map -->
-    <div class="screen" id="scr-map">
-      <div class="maphead">
-        <button class="ghost" id="b-zprev">&larr;</button>
-        <h2 class="t" id="zonetitle">Zone 1</h2>
-        <button class="ghost" id="b-znext">&rarr;</button>
-        <span class="badge" id="zonebadge"></span>
-      </div>
-      <div id="maplist"></div>
-      <div class="statline" id="mapstats"></div>
-      <div class="row">
-        <button class="ghost" id="b-mapchars">CHANGE HERO</button>
-        <button class="ghost" id="b-maptitle">TITLE</button>
-        <button class="ghost" id="b-mute">Sound: on</button>
-        <button class="ghost" id="b-wipe">CLEAR SAVE</button>
-      </div>
-    </div>
-
-    <!-- win -->
-    <div class="screen" id="scr-win">
-      <h2 class="t" id="wintitle">LEVEL CLEAR!</h2>
-      <p class="tag" id="wintext"></p>
-      <div class="statline" id="winstats"></div>
-      <div class="row">
-        <button class="gold" id="b-next">NEXT</button>
-        <button class="ghost" id="b-winmap">ZONE MAP</button>
-      </div>
-    </div>
-
-    <!-- game over -->
-    <div class="screen" id="scr-over">
-      <h2 class="t">TRY AGAIN</h2>
-      <p class="tag" id="overtext"></p>
-      <div class="row">
-        <button id="b-retry">RETRY</button>
-        <button class="ghost" id="b-overmap">ZONE MAP</button>
-      </div>
-    </div>
-
-    <!-- pause -->
-    <div class="screen" id="scr-pause">
-      <h2 class="t">PAUSED</h2>
-      <div class="row">
-        <button id="b-resume">RESUME</button>
-        <button class="ghost" id="b-pauserestart">RESTART</button>
-        <button class="ghost" id="b-pausemap">ZONE MAP</button>
-        <button class="ghost" id="b-pausefull">FULLSCREEN</button>
-      </div>
-      <p class="small">P or Esc to resume &middot; M to mute &middot; R to restart</p>
-    </div>
-  </div>
-  <p class="rotate">Turn your tablet sideways for a bigger view &middot; tap <b>| |</b> to pause</p>
+  <header>
+    <h1>ARCADE</h1>
+    <p>Home-made browser games. No install, no download &mdash; they run in this tab, and on a tablet too.
+      <b>Pick one and play.</b></p>
+  </header>
+  <div class="grid" id="grid"></div>
+  <p class="note">Every folder in this repository that holds an <code>index.html</code> shows up here on its own.
+    Add a game, and its card appears &mdash; give the folder a <code>game.json</code> to choose its name, blurb,
+    colour and emoji.</p>
 </div>
-<script src="game.js"></script>
+
+<!-- GAMES:START -->
+<script>window.GAMES = [{"dir":"fruits-takeover","title":"Fruits Takeover","blurb":"A top-down survival shooter in 30 levels. The orchard took the world and you are the last Juicer: contact leaves rot on you, so standing still is what kills you.","tags":["shooter","30 levels","upgrades","mouse + touch"],"emoji":"🍉","color":"#7ee36a"},{"dir":"sonic4","title":"Sonic 4: Shattered Horizon","blurb":"A 2D platformer in 154 levels. Run, fly, glide or hammer through 17 zones as Sonic, Tails, Knuckles or Amy, collect the 7 Chaos Emeralds, then go Super and take apart Eggman's giant robot.","tags":["platformer","154 levels","4 heroes","tablet ready"],"emoji":"🦔","color":"#2f8ff5"}];</script>
+<!-- GAMES:END -->
+
+<script>
+(function () {
+  'use strict';
+  var SKIP = { tools:1, node_modules:1, docs:1, assets:1, img:1, images:1 };
+  var grid = document.getElementById('grid');
+
+  function prettify(n) {
+    return n.replace(/[-_]+/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  function hueOf(n) {
+    var h = 0;
+    for (var i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) % 360;
+    return h;
+  }
+  function card(g, fresh) {
+    var a = document.createElement('a');
+    a.className = 'card' + (fresh ? ' fresh' : '');
+    a.href = g.dir + '/';
+    a.style.setProperty('--c', g.color || 'hsl(' + hueOf(g.dir) + ' 78% 58%)');
+    var tags = (g.tags || []).map(function (t) {
+      return '<span class="tag">' + String(t).replace(/[<>&]/g, '') + '</span>';
+    }).join('');
+    a.innerHTML =
+      '<span class="top"><span class="ico">' + (g.emoji || '\u{1F3AE}') + '</span>' +
+      '<span><span class="name">' + g.title + '</span><br><span class="dir">/' + g.dir + '/</span></span></span>' +
+      (g.blurb ? '<p class="blurb">' + g.blurb + '</p>' : '<p class="blurb"></p>') +
+      (tags ? '<span class="tags">' + tags + '</span>' : '') +
+      '<span class="play">PLAY</span>';
+    return a;
+  }
+  function render(list) {
+    grid.innerHTML = '';
+    if (!list.length) {
+      var d = document.createElement('div');
+      d.className = 'empty';
+      d.textContent = 'No games here yet. Drop a folder with an index.html inside and it will show up.';
+      grid.appendChild(d);
+      return;
+    }
+    list.forEach(function (g) { grid.appendChild(card(g, g._fresh)); });
+  }
+
+  var games = (window.GAMES || []).slice();
+  var seen = {};
+  games.forEach(function (g) { seen[g.dir] = 1; });
+  render(games);
+
+  function add(dirs) {
+    var added = false;
+    dirs.forEach(function (d) {
+      if (seen[d] || SKIP[d] || d.charAt(0) === '.') return;
+      seen[d] = 1; added = true;
+      games.push({ dir: d, title: prettify(d), blurb: '', tags: [], _fresh: true });
+    });
+    if (added) {
+      games.sort(function (a, b) { return a.title.localeCompare(b.title); });
+      render(games);
+    }
+  }
+
+  /* A fresh games.json beats the list baked into this page. */
+  fetch('games.json', { cache: 'no-cache' }).then(function (r) {
+    return r.ok ? r.json() : null;
+  }).then(function (list) {
+    if (!list || !list.length) return;
+    games = list.slice();
+    seen = {};
+    games.forEach(function (g) { seen[g.dir] = 1; });
+    render(games);
+  }).catch(function () {}).then(discover, discover);
+
+  /* And a folder someone pushed without rebuilding the page still turns up:
+     one call to the GitHub tree API, cached for half an hour. */
+  function discover() {
+    var host = location.hostname.match(/^([^.]+)\.github\.io$/i);
+    if (!host) return;
+    var seg = location.pathname.split('/').filter(Boolean);
+    var repo = seg.length ? seg[0] : host[1] + '.github.io';
+    var key = 'arcade.tree.' + host[1] + '.' + repo;
+    try {
+      var hit = JSON.parse(localStorage.getItem(key) || 'null');
+      if (hit && Date.now() - hit.t < 1800000) { add(hit.dirs); return; }
+    } catch (e) {}
+    fetch('https://api.github.com/repos/' + host[1] + '/' + repo + '/git/trees/HEAD?recursive=1')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (tree) {
+        if (!tree || !tree.tree) return;
+        var dirs = [];
+        tree.tree.forEach(function (n) {
+          var parts = n.path.split('/');
+          if (parts.length === 2 && parts[1] === 'index.html' && dirs.indexOf(parts[0]) < 0) dirs.push(parts[0]);
+        });
+        try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), dirs: dirs })); } catch (e) {}
+        add(dirs);
+      }).catch(function () {});
+  }
+})();
+</script>
