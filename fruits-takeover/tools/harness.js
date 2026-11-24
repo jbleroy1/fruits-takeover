@@ -157,6 +157,33 @@ function flowTest(){
   runTo(30,false);            expect('death ends the level', G.scene==='over', 'scene='+G.scene);
   click('b-retry');           expect('retry re-briefs the same level', shown().includes('scr-brief') && G.levelIndex===29);
 
+  console.log('flow: on-screen controls (phone and tablet)');
+  G.run.up={}; HOOK.prepareLevel(0,true); HOOK.beginPlay();
+  const padEl = els['touch'];
+  expect('the control pad is shown while playing', padEl.style.display === '', JSON.stringify(padEl.style.display));
+  const tap = (id,type,pid) => fire(els[id], type, { pointerId: pid, preventDefault(){}, });
+  let p0 = G.player.x;
+  tap('t-right','touchstart',1);
+  for (let f=0; f<30; f++) tick();
+  expect('the on-screen D-pad moves the Juicer right', G.player.x > p0 + 8, 'moved ' + Math.round(G.player.x-p0) + 'px');
+  const shots0 = G.shots;
+  tap('t-fire','touchstart',2);
+  for (let f=0; f<20; f++) tick();
+  expect('two fingers at once: moving and firing together', G.shots > shots0 && G.player.x > p0, 'shots +' + (G.shots-shots0));
+  tap('t-fire','touchend',2); tap('t-right','touchend',1);
+  const dashN0 = G.player.dashN;
+  G.player.dashCd = 0; G.player.dashT = 0; G.player.dashN = Math.max(1, dashN0);
+  tap('t-dash','touchstart',3);
+  tick();
+  expect('the DASH button dashes (the only way to shake rot off)', G.player.dashT > 0, 'dashT=' + G.player.dashT.toFixed(2));
+  tap('t-dash','touchend',3);
+  els['t-pause'].click();
+  expect('the on-screen pause button pauses', G.scene === 'pause', G.scene);
+  expect('and the pad is taken off the screen with a menu open', padEl.style.display === 'none', JSON.stringify(padEl.style.display));
+  els['t-pause'].click();
+  expect('tapping it again resumes', G.scene === 'play', G.scene);
+  hold(new Set());
+
   console.log('flow: keys and the vault');
   HOOK.prepareLevel(21,true); HOOK.beginPlay();
   runTo(200,true);            expect('vault level banks 3 keys', G.scene==='win' && G.keysGot===3, 'keys='+G.keysGot);

@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Fruits Takeover</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@400;600;800&display=swap">
@@ -30,6 +30,26 @@ body{margin:0;background:
 canvas{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
 
 /* ---------- HUD ---------- */
+/* ---------- on-screen controls (phones and tablets) ---------- */
+#touch{position:absolute;inset:0;pointer-events:none;display:none;z-index:4}
+body.istouch #touch.on{display:block}
+.tbtn{position:absolute;pointer-events:auto;aspect-ratio:1;border-radius:50%;
+  background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:var(--f-dis);
+  text-shadow:0 2px 0 rgba(0,0,0,.55);touch-action:none;
+  user-select:none;-webkit-user-select:none;transition:background .06s}
+.tbtn.on,.tbtn:active{background:rgba(255,255,255,.4);border-color:#fff;transform:scale(.96)}
+.tbtn.pad{width:13%;font-size:clamp(11px,2.3vw,23px)}
+#t-up{left:12.5%;bottom:25%} #t-down{left:12.5%;bottom:4%}
+#t-left{left:1%;bottom:14.5%} #t-right{left:24%;bottom:14.5%}
+#t-fire{right:1.5%;bottom:4%;width:20%;font-size:clamp(9px,1.7vw,16px);
+  background:rgba(255,122,61,.28);border-color:rgba(255,190,150,.65)}
+#t-dash{right:23.5%;bottom:7%;width:15%;font-size:clamp(9px,1.7vw,16px);
+  background:rgba(126,227,106,.26);border-color:rgba(190,245,175,.6)}
+.tbtn.sys{width:9%;font-size:clamp(8px,1.5vw,15px);background:rgba(0,0,0,.42);border-color:rgba(255,255,255,.22)}
+#t-pause{left:43.5%;bottom:21%} #t-full{left:52.5%;bottom:21%}
+@media (hover:none) and (pointer:coarse){ #touch.on{display:block} }
+
 .hud{position:absolute;inset:0;pointer-events:none;font-size:clamp(9px,1.25vw,13px)}
 .hud .corner{position:absolute;padding:clamp(6px,1.2vw,12px)}
 .tl{top:0;left:0;display:flex;flex-direction:column;gap:5px;width:46%}
@@ -83,12 +103,32 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 button.ghost{background:#16202a;color:var(--ink);border-bottom:3px solid #0c1318;box-shadow:inset 0 0 0 1px var(--line)}
 button.warn{background:linear-gradient(#ffb07a,#ff7a3d);border-bottom-color:#9c3f14;color:#1b0a03}
 button:disabled{opacity:.4;cursor:not-allowed}
+a.btn{display:inline-block;text-decoration:none;font-family:var(--f-ui);font-weight:800;
+  font-size:clamp(11px,1.5vw,15px);letter-spacing:.04em;color:#07110a;
+  background:linear-gradient(#9cf089,#5bc94c);border-bottom:3px solid #2c7a28;border-radius:10px;
+  padding:.62em 1.25em;cursor:pointer}
+a.btn.ghost{background:#16202a;color:var(--ink);border-bottom:3px solid #0c1318;box-shadow:inset 0 0 0 1px var(--line)}
+a.btn:hover{filter:brightness(1.08)}
+a.btn:active{transform:translateY(2px);border-bottom-width:1px}
+a.btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .statline{display:flex;gap:clamp(10px,2.4vw,26px);flex-wrap:wrap;justify-content:center;color:var(--muted);font-size:clamp(10px,1.4vw,14px)}
 .statline b{display:block;color:var(--ink);font-family:var(--f-dis);font-size:1.5em;font-weight:400}
 
 /* level map */
 .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,1.6vw,18px);width:100%;max-width:860px}
 @media (max-width:620px){.acts{grid-template-columns:1fr;max-width:420px}}
+/* fill the screen on tablets and phones */
+@media (max-width:1000px), (max-height:660px){
+  .wrap{padding:0;max-width:none;min-height:100vh;min-height:100dvh;
+    display:flex;flex-direction:column;justify-content:center}
+  .topbar{display:none}
+  .stage{border:none;border-radius:0;box-shadow:none;
+    width:min(100vw, calc(100vh * 16 / 9));
+    width:min(100vw, calc(100dvh * 16 / 9))}
+}
+body.istouch{overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+body.istouch button{padding:.72em 1.4em;font-size:clamp(12px,2.1vw,16px)}
+body.istouch canvas{cursor:none}
 .act{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:clamp(7px,1.2vw,13px);text-align:left;min-width:0}
 .act h3{margin:0 0 2px;font-family:var(--f-dis);font-size:clamp(10px,1.45vw,14px);letter-spacing:.04em}
 .act .sb{color:var(--muted);font-size:clamp(8.5px,1.15vw,11.5px);margin-bottom:7px;text-transform:uppercase;letter-spacing:.08em}
@@ -144,6 +184,17 @@ button:disabled{opacity:.4;cursor:not-allowed}
   <div class="stage" id="stage">
     <canvas id="c" width="960" height="540"></canvas>
 
+    <div id="touch">
+      <div class="tbtn pad" id="t-up">&#9650;</div>
+      <div class="tbtn pad" id="t-down">&#9660;</div>
+      <div class="tbtn pad" id="t-left">&#9664;</div>
+      <div class="tbtn pad" id="t-right">&#9654;</div>
+      <div class="tbtn" id="t-fire">FIRE</div>
+      <div class="tbtn" id="t-dash">DASH</div>
+      <div class="tbtn sys" id="t-pause">| |</div>
+      <div class="tbtn sys" id="t-full">[ ]</div>
+    </div>
+
     <div class="hud" id="hud" hidden>
       <div class="corner tl">
         <div class="barrow"><span class="lbl">LIFE</span><div class="bar hp"><span id="hpf"></span></div></div>
@@ -175,6 +226,8 @@ button:disabled{opacity:.4;cursor:not-allowed}
         <button class="ghost" id="b-levels">LEVELS</button>
         <button class="ghost" id="b-vault">VAULT</button>
         <button class="ghost" id="b-help">HOW TO PLAY</button>
+        <button class="ghost" id="b-fullscreen">FULLSCREEN</button>
+        <a class="btn ghost" id="b-arcade" href="../">&larr; ARCADE</a>
       </div>
       <div class="statline" id="titlestats"></div>
     </div>
@@ -240,7 +293,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <div class="screen" id="scr-pause">
       <h2 class="t">PAUSED</h2>
       <div class="kit" id="pause-kit"></div>
-      <div class="row"><button id="b-resume">RESUME</button><button class="ghost" id="b-restart">RESTART LEVEL</button><button class="ghost" id="b-quit">LEAVE LEVEL</button></div>
+      <div class="row"><button id="b-resume">RESUME</button><button class="ghost" id="b-restart">RESTART LEVEL</button><button class="ghost" id="b-quit">LEAVE LEVEL</button><a class="btn ghost" id="b-pausearcade" href="../">&larr; ARCADE</a></div>
       <div class="footnote" id="mutestate"></div>
     </div>
 
@@ -262,7 +315,9 @@ button:disabled{opacity:.4;cursor:not-allowed}
         <div><kbd>Shift</kbd> &mdash; dash: brief invincibility, shakes off rot</div>
         <div><kbd>P</kbd> / <kbd>Esc</kbd> &mdash; pause</div>
         <div><kbd>M</kbd> &mdash; mute</div>
-        <div><b>Touch:</b> drag the left half to move, hold the right half to fire</div>
+        <div><b>Phone / tablet:</b> the <b>D-pad</b>, <b>FIRE</b> and <b>DASH</b> buttons appear on screen,
+          with <b>| |</b> to pause and <b>[ ]</b> for fullscreen</div>
+        <div><b>Touch, the free way:</b> drag the left half to move, hold the right half to aim and fire</div>
         <div><b>Rot</b> builds on contact and eats your life until you dash it off</div>
       </div>
       <p class="tag">Fruit rarely kills you outright. It lands rot on you and walks away. Salt packets clear rot, hearts heal, golden crates upgrade the gun mid-level.</p>
@@ -272,7 +327,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
 
   <div class="under">
     <span id="progline">&nbsp;</span>
-    <span class="footnote">Keyboard + mouse, or touch. Sound starts after your first click.</span>
+    <span class="footnote">Keyboard + mouse, or touch: on a phone or tablet the D-pad, FIRE and DASH buttons appear by themselves. Sound starts after your first tap.</span>
   </div>
 </div>
 <script src="game.js"></script>

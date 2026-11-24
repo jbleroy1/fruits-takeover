@@ -48,6 +48,7 @@ cleared for everyone.
 | Restart level | `R` |
 | Mute | `M` |
 | Tablet / phone | on-screen buttons: D-pad, JUMP, X, `| |` pause, `[ ]` fullscreen |
+| Back to the arcade | the **← ARCADE** link on the title screen and in the pause menu |
 
 ## On a tablet or phone
 

@@ -70,7 +70,9 @@ canvas{position:absolute;inset:0;display:block;width:100%;height:100%;touch-acti
 /* --------------------------- touch controls --------------------------- */
 #touch{position:absolute;inset:0;pointer-events:none;display:none;z-index:4}
 body.istouch #touch{display:block}
-#touch.hide{display:none}
+/* a menu is open: the pad must go away. Specificity has to beat the rule above,
+   or the buttons sit on top of the title screen (which is what happened). */
+#touch.hide, body.istouch #touch.hide{display:none}
 .tbtn{position:absolute;pointer-events:auto;aspect-ratio:1;border-radius:50%;
   background:rgba(255,255,255,.13);border:2px solid rgba(255,255,255,.3);color:#fff;
   display:flex;align-items:center;justify-content:center;font-family:var(--f-dis);
@@ -113,6 +115,14 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:3px}
 button.ghost{background:#162236;color:var(--ink);border-bottom:3px solid #0b1220;box-shadow:inset 0 0 0 1px var(--line)}
 button.gold{background:linear-gradient(#ffe79a,#ffc63d);border-bottom-color:#9c7714;color:#1b1203}
 button:disabled{opacity:.38;cursor:not-allowed}
+a.btn{display:inline-block;text-decoration:none;font-family:var(--f-ui);font-weight:800;
+  font-size:clamp(11px,1.45vw,15px);letter-spacing:.04em;color:#05121f;
+  background:linear-gradient(#8fd0ff,#2f8ff5);border-bottom:3px solid #1b5aa8;border-radius:10px;
+  padding:.6em 1.2em;cursor:pointer}
+a.btn.ghost{background:#162236;color:var(--ink);border-bottom:3px solid #0b1220;box-shadow:inset 0 0 0 1px var(--line)}
+a.btn:hover{filter:brightness(1.1)}
+a.btn:active{transform:translateY(2px);border-bottom-width:1px}
+a.btn:focus-visible{outline:2px solid var(--ring);outline-offset:3px}
 .statline{display:flex;gap:clamp(9px,2.2vw,24px);flex-wrap:wrap;justify-content:center;color:var(--muted);font-size:clamp(10px,1.35vw,13.5px)}
 .statline b{display:block;color:var(--ink);font-family:var(--f-dis);font-size:1.45em;font-weight:400}
 
@@ -221,6 +231,7 @@ body.istouch #maplist{grid-template-columns:repeat(3,1fr)}
         <button id="b-play">PLAY</button>
         <button class="ghost" id="b-help">HOW TO PLAY</button>
         <button class="ghost" id="b-full">FULLSCREEN</button>
+        <a class="btn ghost" id="b-arcade" href="../">&larr; ARCADE</a>
       </div>
       <div class="statline" id="savebar"></div>
     </div>
@@ -269,6 +280,7 @@ body.istouch #maplist{grid-template-columns:repeat(3,1fr)}
         <button class="ghost" id="b-maptitle">TITLE</button>
         <button class="ghost" id="b-mute">Sound: on</button>
         <button class="ghost" id="b-wipe">CLEAR SAVE</button>
+        <a class="btn ghost" id="b-maparcade" href="../">&larr; ARCADE</a>
       </div>
     </div>
 
@@ -301,6 +313,7 @@ body.istouch #maplist{grid-template-columns:repeat(3,1fr)}
         <button class="ghost" id="b-pauserestart">RESTART</button>
         <button class="ghost" id="b-pausemap">ZONE MAP</button>
         <button class="ghost" id="b-pausefull">FULLSCREEN</button>
+        <a class="btn ghost" id="b-pausearcade" href="../">&larr; ARCADE</a>
       </div>
       <p class="small">P or Esc to resume &middot; M to mute &middot; R to restart</p>
     </div>

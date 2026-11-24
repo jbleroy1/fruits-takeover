@@ -296,6 +296,9 @@ function flowTest() {
   expect('and is locked before the quota is paid', !HOOK.goalOpen(G.level));
 
   console.log('flow: menus');
+  showScreen('scr-title');
+  expect('the touch pad is off the title screen (it used to cover it on Android)',
+    els['touch'].style.display === 'none', JSON.stringify(els['touch'].style.display));
   click('b-play');     expect('PLAY opens character select', shown().includes('scr-chars'));
   const card = els['charcards'].children[3];
   expect('four character cards', els['charcards'].children.length === 4, els['charcards'].children.length);
@@ -389,8 +392,11 @@ function flowTest() {
   expect('and resumes', G.scene === 'play', G.scene);
   showScreen('scr-map');
   expect('the touch pad hides behind a menu', els['touch'].classList.contains('hide'));
+  expect('and is taken off the screen inline, so no CSS rule can leave it over a menu',
+    els['touch'].style.display === 'none', JSON.stringify(els['touch'].style.display));
   showScreen(null);
   expect('and comes back when you are playing', !els['touch'].classList.contains('hide'));
+  expect('visibly', els['touch'].style.display === '', JSON.stringify(els['touch'].style.display));
 
   console.log('flow: every hero can clear an act');
   for (const k of ['sonic','tails','knuckles','amy']) {

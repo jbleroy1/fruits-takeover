@@ -149,6 +149,81 @@ function touchEnd(e) {
 cv.addEventListener('touchend', touchEnd);
 cv.addEventListener('touchcancel', touchEnd);
 
+/* ---- on-screen controls: without a keyboard there is no way to dash or pause,
+        so a phone or tablet gets buttons that stand in for the keys ---- */
+var TOUCH_BTNS = [
+  ['t-up', 'ArrowUp'], ['t-down', 'ArrowDown'], ['t-left', 'ArrowLeft'], ['t-right', 'ArrowRight'],
+  ['t-fire', 'Space'], ['t-dash', 'ShiftLeft']
+];
+function isTouchDevice() {
+  if (typeof window === 'undefined') return false;
+  var nav = window.navigator;
+  return ('ontouchstart' in window) || !!(nav && (nav.maxTouchPoints > 0 || nav.msMaxTouchPoints > 0));
+}
+function toggleFullscreen() {
+  try {
+    var stage = el('stage') || cv;
+    var on = document.fullscreenElement || document.webkitFullscreenElement;
+    if (on) { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document); }
+    else { var req = stage.requestFullscreen || stage.webkitRequestFullscreen; if (req) req.call(stage); }
+  } catch (e) {}
+}
+function setupTouch() {
+  if (isTouchDevice() && document.body && document.body.classList) document.body.classList.add('istouch');
+  var active = {};                                  /* pointer id -> key code, for multi-touch */
+  var usePointer = typeof window !== 'undefined' && !!window.PointerEvent;
+
+  function stillHeld(code) {
+    for (var id in active) if (active[id] === code) return true;
+    return false;
+  }
+  for (var i = 0; i < TOUCH_BTNS.length; i++) {
+    (function (id, code) {
+      var node = el(id);
+      if (!node) return;
+      var down = function (ev) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        actx();
+        var pid = (ev && ev.pointerId !== undefined) ? ev.pointerId : 'm';
+        active[pid] = code;
+        if (!keys[code]) onKeyPress(code);
+        keys[code] = true;
+        if (node.classList) node.classList.add('on');
+        if (node.setPointerCapture && ev && ev.pointerId !== undefined) {
+          try { node.setPointerCapture(ev.pointerId); } catch (e) {}
+        }
+      };
+      var up = function (ev) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        var pid = (ev && ev.pointerId !== undefined) ? ev.pointerId : 'm';
+        delete active[pid];
+        if (!stillHeld(code)) keys[code] = false;
+        if (node.classList) node.classList.remove('on');
+      };
+      if (usePointer) {
+        node.addEventListener('pointerdown', down);
+        node.addEventListener('pointerup', up);
+        node.addEventListener('pointercancel', up);
+        node.addEventListener('lostpointercapture', up);
+      } else {
+        node.addEventListener('touchstart', down);
+        node.addEventListener('mousedown', down);
+        node.addEventListener('touchend', up);
+        node.addEventListener('touchcancel', up);
+        node.addEventListener('mouseup', up);
+        node.addEventListener('mouseleave', up);
+      }
+    })(TOUCH_BTNS[i][0], TOUCH_BTNS[i][1]);
+  }
+  var pause = el('t-pause');
+  if (pause) pause.addEventListener('click', function () {
+    if (G.scene === 'play') pauseGame();
+    else if (G.scene === 'pause') setScene('play');
+  });
+  var full = el('t-full');
+  if (full) full.addEventListener('click', toggleFullscreen);
+}
+
 /* ---- game state ---- */
 var G = {
   scene: 'title',          // title | story | map | brief | play | up | win | over | pause | vault | help
@@ -1948,7 +2023,17 @@ function setScene(name) {
     if (node) node.classList.toggle('show', k === name);
   }
   el('hud').hidden = !(name === 'play' || name === 'pause');
-  if (name !== 'play') { mouse.down = false; touchFire = null; touchMove = null; }
+  var pad = el('touch');
+  if (pad) {
+    if (pad.classList) pad.classList.toggle('on', name === 'play');
+    /* inline too, so the buttons can never sit on top of a menu */
+    pad.style.display = (name === 'play') ? '' : 'none';
+  }
+  if (name !== 'play') {
+    mouse.down = false; touchFire = null; touchMove = null;
+    /* a finger still down on a button when a menu opens must not stay held */
+    for (var ti = 0; ti < TOUCH_BTNS.length; ti++) keys[TOUCH_BTNS[ti][1]] = false;
+  }
   if (name !== 'play' && name !== 'pause') { el('toast').classList.remove('on'); G.toastT = 0; }
   updateProgLine();
 }
@@ -2258,6 +2343,7 @@ on('b-restart', function () { prepareLevel(G.levelIndex, false); });
 on('b-quit', showMap);
 on('b-vaultback', function () { showTitle(); });
 on('b-helpback', showTitle);
+on('b-fullscreen', toggleFullscreen);
 
 /* ---- test hook: used by the offline harness, inert in a browser ---- */
 try {
@@ -2267,6 +2353,7 @@ try {
 
 /* ---- boot ---- */
 function start() {
+  setupTouch();
   initAttract();
   G.player = makePlayer();
   G.run.up = {};

@@ -18,6 +18,8 @@ jobs:
 
       - name: The home page lists every game folder
         run: node tools/build-home.js --check
+      - name: Every game links back to the arcade and keeps its controls off its menus
+        run: node tools/check-links.js
 
       - name: Sonic 4 - menus, saving, tablet controls, every hero
         run: npm test --prefix sonic4

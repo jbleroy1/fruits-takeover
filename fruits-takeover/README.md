@@ -3,6 +3,9 @@
 A 2D top-down survival shooter. The orchard took the world; you are the last Juicer.
 **30 levels**: 10 base, 10 normal, and 10 bonus levels that alternate mini-bosses with vault key hunts.
 
+**[Play it here](https://jbleroy1.github.io/fruits-takeover/fruits-takeover/)** — no install, and it
+works on a tablet: the on-screen D-pad, FIRE and DASH buttons appear by themselves.
+
 No build step, no runtime dependencies. Open `index.html` in a browser, or serve it locally:
 
 ```sh
@@ -30,7 +33,9 @@ or scrub it with a salt packet. Standing still is what kills you; the fruit is j
 | Dash | `Shift` — brief invincibility, shakes off rot |
 | Pause | `P` or `Esc` |
 | Mute | `M` |
-| Touch | drag the left half to move, hold the right half to fire |
+| Touch | drag the left half to move, hold the right half to aim and fire |
+| Phone / tablet | on-screen buttons: D-pad, **FIRE**, **DASH**, `| |` pause, `[ ]` fullscreen |
+| Back to the arcade | the **← ARCADE** link on the title screen and in the pause menu |
 
 ## The 30 levels
 

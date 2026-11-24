@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node tools/serve.js",
     "home": "node tools/build-home.js",
-    "test": "node tools/build-home.js --check && npm test --prefix sonic4 && npm test --prefix fruits-takeover",
+    "test": "node tools/build-home.js --check && node tools/check-links.js && npm test --prefix sonic4 && npm test --prefix fruits-takeover",
     "test:sonic4": "npm test --prefix sonic4",
     "test:fruits": "npm test --prefix fruits-takeover",
     "new-game": "node tools/new-game.js"

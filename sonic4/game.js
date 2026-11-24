@@ -2206,7 +2206,13 @@ function showScreen(id) {
   ['scr-title','scr-chars','scr-map','scr-win','scr-over','scr-pause','scr-help'].forEach(s => {
     if (EL[s]) EL[s].classList.toggle('show', s === id);
   });
-  if (EL['touch']) EL['touch'].classList.toggle('hide', !!id);
+  if (EL['touch']) {
+    EL['touch'].classList.toggle('hide', !!id);
+    /* inline, so the pad can never end up over a menu through a CSS mishap */
+    EL['touch'].style.display = id ? 'none' : '';
+  }
+  /* and a button still held when the menu opened must not stay held */
+  if (id) G.act = {};
 }
 function renderHUDStatic() {
   const L = G.level, D = L.D;

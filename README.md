@@ -35,6 +35,9 @@ By hand it is just as simple: drop the folder in with an `index.html` inside and
 Either way, **every top-level folder holding an `index.html` becomes a card on the home page.**
 Nothing lists games by hand.
 
+Two house rules, enforced by `npm test` (`tools/check-links.js`): a game links back to the arcade
+with `href="../"`, and if it draws on-screen touch controls it hides them while a menu is open.
+
 To choose how the card looks, add a `game.json` to the folder:
 
 ```json
@@ -80,6 +83,7 @@ Takeover levels** headlessly.
 | `tools/build-home.js` | scans the folders and writes both of the above (`--check` fails if they are stale) |
 | `tools/serve.js` | zero-dependency static server for the whole repository |
 | `tools/new-game.js` | scaffolds a new game folder here and rebuilds the home page |
+| `tools/check-links.js` | checks every game links back to the arcade and hides its touch pad on menus |
 | `sonic4/`, `fruits-takeover/` | the games, each self-contained with its own README and tests |
 
 ## About these projects
