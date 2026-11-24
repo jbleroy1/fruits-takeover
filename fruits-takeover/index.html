@@ -30,33 +30,46 @@ body{margin:0;background:
 canvas{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
 
 /* ---------- HUD ---------- */
-/* ---------- on-screen controls (phones and tablets) ---------- */
-#touch{position:absolute;inset:0;pointer-events:none;display:none;z-index:4}
-body.istouch #touch.on{display:block}
-.tbtn{position:absolute;pointer-events:auto;aspect-ratio:1;border-radius:50%;
+/* ---------- on-screen controls: a bar BELOW the arena ----------
+   Nothing is drawn over the game: the sticks and buttons sit in their own
+   strip under the stage, so hands never cover the fruit. */
+:root{ --barh:clamp(104px, 25dvh, 220px) }
+#touch{display:none}
+body.istouch #touch{display:flex;align-items:center;justify-content:space-between;
+  gap:3vw;padding:7px clamp(8px,3vw,26px);height:var(--barh);flex:0 0 var(--barh);
+  background:linear-gradient(#0b1116,#06090d);border-top:1px solid var(--line);
+  touch-action:none;user-select:none;-webkit-user-select:none}
+/* outside a level the controls are there but inert, so the layout never jumps */
+#touch:not(.on){opacity:.32}
+#touch:not(.on) .stick, #touch:not(.on) .tbtn{pointer-events:none}
+.mid{display:flex;align-items:center;gap:clamp(8px,3vw,26px);height:100%}
+
+.stick{position:relative;height:88%;aspect-ratio:1;border-radius:50%;pointer-events:auto;touch-action:none;
+  flex:0 0 auto;background:radial-gradient(circle,rgba(255,255,255,.13),rgba(255,255,255,.05));
+  border:2px solid rgba(255,255,255,.3);box-shadow:inset 0 0 22px rgba(0,0,0,.35)}
+.stick.on{border-color:rgba(255,255,255,.8);background:radial-gradient(circle,rgba(255,255,255,.22),rgba(255,255,255,.07))}
+.knob{position:absolute;pointer-events:none;left:50%;top:50%;transform:translate(-50%,-50%);width:48%;height:48%;
+  border-radius:50%;background:rgba(255,255,255,.3);border:2px solid rgba(255,255,255,.65);
+  box-shadow:0 2px 12px rgba(0,0,0,.5)}
+#st-aim .knob{background:rgba(255,122,61,.5);border-color:rgba(255,196,160,.9)}
+.slabel{position:absolute;pointer-events:none;left:50%;bottom:9%;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--f-ui);font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.5);
+  font-size:clamp(7px,1.5vh,11px)}
+
+.tbtn{position:relative;pointer-events:auto;aspect-ratio:1;border-radius:50%;flex:0 0 auto;
   background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3);color:#fff;
   display:flex;align-items:center;justify-content:center;font-family:var(--f-dis);
   text-shadow:0 2px 0 rgba(0,0,0,.55);touch-action:none;
   user-select:none;-webkit-user-select:none;transition:background .06s}
-.tbtn.on,.tbtn:active{background:rgba(255,255,255,.4);border-color:#fff;transform:scale(.96)}
-/* two thumb sticks in the corners: your fingers stay out of the arena */
-.stick{position:absolute;width:19.5%;aspect-ratio:1;border-radius:50%;pointer-events:auto;touch-action:none;
-  background:radial-gradient(circle,rgba(255,255,255,.10),rgba(255,255,255,.035));
-  border:2px solid rgba(255,255,255,.26);box-shadow:inset 0 0 22px rgba(0,0,0,.25)}
-.stick.on{border-color:rgba(255,255,255,.75);background:radial-gradient(circle,rgba(255,255,255,.17),rgba(255,255,255,.05))}
-#st-move{left:2%;bottom:5%} #st-aim{right:2%;bottom:5%}
-.knob{position:absolute;pointer-events:none;left:50%;top:50%;transform:translate(-50%,-50%);width:48%;height:48%;
-  border-radius:50%;background:rgba(255,255,255,.26);border:2px solid rgba(255,255,255,.6);
-  box-shadow:0 2px 12px rgba(0,0,0,.45)}
-#st-aim .knob{background:rgba(255,122,61,.45);border-color:rgba(255,196,160,.85)}
-.slabel{position:absolute;pointer-events:none;left:50%;bottom:10%;transform:translateX(-50%);white-space:nowrap;
-  font-family:var(--f-ui);font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.45);
-  font-size:clamp(6.5px,1vw,10px)}
-#t-dash{right:26.5%;bottom:7%;width:15%;font-size:clamp(9px,1.7vw,16px);
-  background:rgba(126,227,106,.26);border-color:rgba(190,245,175,.6)}
-.tbtn.sys{width:9%;font-size:clamp(8px,1.5vw,15px);background:rgba(0,0,0,.42);border-color:rgba(255,255,255,.22)}
-#t-pause{left:28.5%;bottom:9%} #t-full{left:39%;bottom:9%}
-@media (hover:none) and (pointer:coarse){ #touch.on{display:block} }
+.tbtn.on,.tbtn:active{background:rgba(255,255,255,.42);border-color:#fff;transform:scale(.95)}
+#t-dash{height:62%;font-size:clamp(9px,1.9vh,16px);
+  background:rgba(126,227,106,.28);border-color:rgba(190,245,175,.65)}
+.tbtn.sys{height:38%;font-size:clamp(8px,1.5vh,14px);background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.24)}
+@media (hover:none) and (pointer:coarse){
+  #touch{display:flex;align-items:center;justify-content:space-between;
+    gap:3vw;padding:7px clamp(8px,3vw,26px);height:var(--barh);flex:0 0 var(--barh);
+    background:linear-gradient(#0b1116,#06090d);border-top:1px solid var(--line)}
+}
 
 .hud{position:absolute;inset:0;pointer-events:none;font-size:clamp(9px,1.25vw,13px)}
 .hud .corner{position:absolute;padding:clamp(6px,1.2vw,12px)}
@@ -134,6 +147,14 @@ a.btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
     width:min(100vw, calc(100vh * 16 / 9));
     width:min(100vw, calc(100dvh * 16 / 9))}
 }
+/* with the control bar below, the arena takes the space that is left */
+body.istouch .wrap{padding:0;max-width:none;min-height:100vh;min-height:100dvh;
+  display:flex;flex-direction:column;justify-content:center;gap:0}
+body.istouch .topbar{display:none}
+body.istouch .under{display:none}
+body.istouch .stage{border:none;border-radius:0;box-shadow:none;flex:0 0 auto;
+  width:min(100vw, calc((100vh - var(--barh)) * 16 / 9));
+  width:min(100vw, calc((100dvh - var(--barh)) * 16 / 9))}
 body.istouch{overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 body.istouch button{padding:.72em 1.4em;font-size:clamp(12px,2.1vw,16px)}
 body.istouch canvas{cursor:none}
@@ -191,14 +212,6 @@ body.istouch canvas{cursor:none}
 
   <div class="stage" id="stage">
     <canvas id="c" width="960" height="540"></canvas>
-
-    <div id="touch">
-      <div class="stick" id="st-move"><i class="knob" id="st-move-k"></i><span class="slabel">MOVE</span></div>
-      <div class="stick" id="st-aim"><i class="knob" id="st-aim-k"></i><span class="slabel">AIM &amp; FIRE</span></div>
-      <div class="tbtn" id="t-dash">DASH</div>
-      <div class="tbtn sys" id="t-pause">| |</div>
-      <div class="tbtn sys" id="t-full">[ ]</div>
-    </div>
 
     <div class="hud" id="hud" hidden>
       <div class="corner tl">
@@ -328,6 +341,17 @@ body.istouch canvas{cursor:none}
       <p class="tag">Fruit rarely kills you outright. It lands rot on you and walks away. Salt packets clear rot, hearts heal, golden crates upgrade the gun mid-level.</p>
       <div class="row"><button class="ghost" id="b-helpback">BACK</button></div>
     </div>
+  </div>
+
+  <!-- the controls live below the arena, so your hands never cover the game -->
+  <div id="touch">
+    <div class="stick" id="st-move"><i class="knob" id="st-move-k"></i><span class="slabel">MOVE</span></div>
+    <div class="mid">
+      <div class="tbtn sys" id="t-pause">| |</div>
+      <div class="tbtn" id="t-dash">DASH</div>
+      <div class="tbtn sys" id="t-full">[ ]</div>
+    </div>
+    <div class="stick" id="st-aim"><i class="knob" id="st-aim-k"></i><span class="slabel">AIM &amp; FIRE</span></div>
   </div>
 
   <div class="under">

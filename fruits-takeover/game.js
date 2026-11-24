@@ -2114,11 +2114,9 @@ function setScene(name) {
   }
   el('hud').hidden = !(name === 'play' || name === 'pause');
   var pad = el('touch');
-  if (pad) {
-    if (pad.classList) pad.classList.toggle('on', name === 'play');
-    /* inline too, so the buttons can never sit on top of a menu */
-    pad.style.display = (name === 'play') ? '' : 'none';
-  }
+  /* The bar lives below the arena, so it is never over a menu. It stays in
+     place and goes inert outside a level, which keeps the layout from jumping. */
+  if (pad && pad.classList) pad.classList.toggle('on', name === 'play');
   if (name !== 'play') {
     mouse.down = false; touchFire = null; touchMove = null;
     /* a finger still down on a stick or button when a menu opens must let go */

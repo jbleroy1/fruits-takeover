@@ -20,9 +20,9 @@ to install. There is no `node_modules`; `npm install` is not needed.
 
 ## On a phone or tablet
 
-The game notices a touch screen and lays its own controls over the arena, in the corners so your
-thumbs stay out of the action: a **left stick to move**, a **right stick that aims and fires while
-you hold it**, and a **DASH** button — dashing is the only way to shake rot off, and it used to be
+The game notices a touch screen and puts its controls in a **bar below the arena** — nothing is ever
+drawn over the game, so your hands cannot cover the fruit: a **left stick to move**, a **right stick
+that aims and fires while you hold it**, and a **DASH** button — dashing is the only way to shake rot off, and it used to be
 reachable by keyboard only. `| |` pauses and `[ ]` goes fullscreen. The free-form touch controls
 still work too: drag anywhere on the left half to move, hold the right half to aim and fire.
 

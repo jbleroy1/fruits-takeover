@@ -162,7 +162,7 @@ function flowTest(){
   console.log('flow: on-screen controls (phone and tablet)');
   G.run.up={}; HOOK.prepareLevel(0,true); HOOK.beginPlay();
   const padEl = els['touch'];
-  expect('the control pad is shown while playing', padEl.style.display === '', JSON.stringify(padEl.style.display));
+  expect('the control bar is live while playing', padEl.classList.contains('on'));
   expect('a touch device switches the controls on by itself', document.body.classList.contains('istouch'));
   /* the stub getBoundingClientRect is 0,0,960x540, so the stick centre is 480,270 */
   const stick = (id, type, id2, x, y) =>
@@ -195,7 +195,8 @@ function flowTest(){
   tap('t-dash','touchend',3);
   els['t-pause'].click();
   expect('the on-screen pause button pauses', G.scene === 'pause', G.scene);
-  expect('and the pad is taken off the screen with a menu open', padEl.style.display === 'none', JSON.stringify(padEl.style.display));
+  expect('and goes inert with a menu open (it sits below the arena, never over it)',
+    !padEl.classList.contains('on'));
   els['t-pause'].click();
   expect('tapping it again resumes', G.scene === 'play', G.scene);
   hold(new Set());
