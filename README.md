@@ -1,7 +1,7 @@
 # Sonic 4: Shattered Horizon
 
-**[Play it here](https://jbleroy1.github.io/fruits-takeover/)** (once GitHub Pages is switched on for
-this repository) — or clone it and run `npm start`.
+**[Play it here](https://jbleroy1.github.io/fruits-takeover/)** — no install, works on a tablet too.
+Or clone it and run `npm start`.
 
 A 2D side-scrolling platformer. Dr. Eggman shattered the sky into **17 zones**; four heroes run,
 fly, glide and hammer their way back across it.
@@ -180,10 +180,11 @@ and no knockback, so these runs test that every level is **completable**, not th
 
 The game is plain static files, so GitHub Pages serves it as-is — no build step, nothing to
 configure. `.github/workflows/pages.yml` runs the test suites on every push and then publishes the
-repository root to Pages, enabling Pages itself the first time it runs. That deploy job is skipped
-while the repository is private (free Pages needs a public repository), so if the play link above is
-dead: make the repository public under **Settings → General → Change repository visibility**, then
-re-run the workflow from the **Actions** tab. The link becomes live a minute later.
+repository root to Pages, enabling Pages itself the first time it runs. That deploy job needs a public
+repository (free Pages does not run on a private one) and skips itself while the repository is
+private. Note that *re-running* an older workflow run replays its original event payload, so after
+flipping the repository to public you need a **fresh push** (or a `workflow_dispatch` run) for the
+deploy job to fire.
 
 ## Adding to the game
 
