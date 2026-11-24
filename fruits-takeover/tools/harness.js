@@ -30,7 +30,8 @@ const CTX = new Proxy({}, { get(t,k){
 const els = {};
 const document = {
   getElementById(id){ return els[id] || (els[id]=makeEl(id)); },
-  createElement(tag){ return makeEl('<'+tag+'>'); }
+  createElement(tag){ return makeEl('<'+tag+'>'); },
+  body: makeEl('body')
 };
 let rafCb = null, rafId = 0;
 const store = {};
@@ -42,6 +43,7 @@ const window = {
   performance: { now: ()=>Date.now() },
   localStorage: { getItem:k=>store[k]===undefined?null:store[k], setItem:(k,v)=>{store[k]=String(v);}, removeItem:k=>{delete store[k];} },
   setTimeout: (f,t)=>setTimeout(f,t),
+  navigator: { maxTouchPoints: 5 },     /* so the on-screen controls switch themselves on */
   claude: undefined
 };
 const sandbox = { window, document, console, Math, Date, JSON, Object, Array, String, Number, Boolean,
@@ -161,16 +163,30 @@ function flowTest(){
   G.run.up={}; HOOK.prepareLevel(0,true); HOOK.beginPlay();
   const padEl = els['touch'];
   expect('the control pad is shown while playing', padEl.style.display === '', JSON.stringify(padEl.style.display));
-  const tap = (id,type,pid) => fire(els[id], type, { pointerId: pid, preventDefault(){}, });
+  expect('a touch device switches the controls on by itself', document.body.classList.contains('istouch'));
+  /* the stub getBoundingClientRect is 0,0,960x540, so the stick centre is 480,270 */
+  const stick = (id, type, id2, x, y) =>
+    fire(els[id], type, { changedTouches: [{ identifier: id2, clientX: x, clientY: y }], preventDefault(){} });
   let p0 = G.player.x;
-  tap('t-right','touchstart',1);
+  stick('st-move','touchstart',1, 860, 270);          // left stick pushed right
   for (let f=0; f<30; f++) tick();
-  expect('the on-screen D-pad moves the Juicer right', G.player.x > p0 + 8, 'moved ' + Math.round(G.player.x-p0) + 'px');
+  expect('the left thumb stick moves the Juicer right', G.player.x > p0 + 8, 'moved ' + Math.round(G.player.x-p0) + 'px');
   const shots0 = G.shots;
-  tap('t-fire','touchstart',2);
+  stick('st-aim','touchstart',2, 480, 30);            // right stick pushed up
+  for (let f=0; f<24; f++) tick();
+  expect('the right thumb stick fires while held', G.shots > shots0, 'shots +' + (G.shots-shots0));
+  expect('and aims where it points (up)', Math.abs(G.player.aim + Math.PI/2) < 0.2, 'aim=' + G.player.aim.toFixed(2));
+  expect('both sticks at once: moving while shooting', G.player.x > p0 + 8 && G.shots > shots0);
+  stick('st-move','touchmove',1, 100, 270);           // slide the left stick the other way
+  const p1 = G.player.x;
+  for (let f=0; f<30; f++) tick();
+  expect('sliding the left stick turns the Juicer around', G.player.x < p1, 'x ' + Math.round(p1) + ' -> ' + Math.round(G.player.x));
+  stick('st-aim','touchend',2, 480, 30);
+  const shots1 = G.shots;
   for (let f=0; f<20; f++) tick();
-  expect('two fingers at once: moving and firing together', G.shots > shots0 && G.player.x > p0, 'shots +' + (G.shots-shots0));
-  tap('t-fire','touchend',2); tap('t-right','touchend',1);
+  expect('letting the right stick go stops the shooting', G.shots === shots1, 'shots +' + (G.shots-shots1));
+  stick('st-move','touchend',1, 100, 270);
+  const tap = (id,type,pid) => fire(els[id], type, { pointerId: pid, preventDefault(){} });
   const dashN0 = G.player.dashN;
   G.player.dashCd = 0; G.player.dashT = 0; G.player.dashN = Math.max(1, dashN0);
   tap('t-dash','touchstart',3);

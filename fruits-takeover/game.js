@@ -151,10 +151,88 @@ cv.addEventListener('touchcancel', touchEnd);
 
 /* ---- on-screen controls: without a keyboard there is no way to dash or pause,
         so a phone or tablet gets buttons that stand in for the keys ---- */
-var TOUCH_BTNS = [
-  ['t-up', 'ArrowUp'], ['t-down', 'ArrowDown'], ['t-left', 'ArrowLeft'], ['t-right', 'ArrowRight'],
-  ['t-fire', 'Space'], ['t-dash', 'ShiftLeft']
-];
+var TOUCH_BTNS = [['t-dash', 'ShiftLeft']];
+/* two thumb sticks: the left one steers, the right one aims and fires */
+var padMove = { on: false, x: 0, y: 0 };
+var padAim = { on: false, ang: 0 };
+function padReset() {
+  padMove.on = false; padMove.x = 0; padMove.y = 0;
+  padAim.on = false;
+  var a = el('st-move'), b = el('st-aim');
+  if (a && a.classList) a.classList.remove('on');
+  if (b && b.classList) b.classList.remove('on');
+  knobTo('st-move-k', 0, 0); knobTo('st-aim-k', 0, 0);
+}
+function knobTo(id, nx, ny) {
+  var k = el(id);
+  if (k && k.style) { k.style.left = (50 + nx * 30) + '%'; k.style.top = (50 + ny * 30) + '%'; }
+}
+function bindStick(baseId, knobId, onMove, onEnd) {
+  var base = el(baseId);
+  if (!base) return;
+  var pid = null;
+  function vecFrom(cx, cy) {
+    var r = base.getBoundingClientRect();
+    var rad = (r.width || 2) / 2;
+    var nx = (cx - (r.left + rad)) / rad, ny = (cy - (r.top + (r.height || 2) / 2)) / rad;
+    var n = Math.sqrt(nx * nx + ny * ny);
+    if (n > 1) { nx /= n; ny /= n; n = 1; }
+    knobTo(knobId, nx, ny);
+    onMove(nx, ny, n);
+  }
+  function pointOf(ev) {
+    if (ev.clientX !== undefined) return { x: ev.clientX, y: ev.clientY, id: ev.pointerId };
+    var list = ev.changedTouches || ev.touches;
+    if (!list || !list.length) return null;
+    for (var i = 0; i < list.length; i++) if (pid === null || list[i].identifier === pid)
+      return { x: list[i].clientX, y: list[i].clientY, id: list[i].identifier };
+    return null;
+  }
+  function down(ev) {
+    if (ev.preventDefault) ev.preventDefault();
+    actx();
+    var p = pointOf(ev);
+    if (!p) return;
+    pid = p.id === undefined ? 'm' : p.id;
+    if (base.classList) base.classList.add('on');
+    if (base.setPointerCapture && ev.pointerId !== undefined) {
+      try { base.setPointerCapture(ev.pointerId); } catch (e) {}
+    }
+    vecFrom(p.x, p.y);
+  }
+  function move(ev) {
+    if (pid === null) return;
+    if (ev.preventDefault) ev.preventDefault();
+    var p = pointOf(ev);
+    if (!p) return;
+    if (p.id !== undefined && p.id !== pid) return;
+    vecFrom(p.x, p.y);
+  }
+  function up(ev) {
+    if (pid === null) return;
+    if (ev && ev.preventDefault) ev.preventDefault();
+    pid = null;
+    if (base.classList) base.classList.remove('on');
+    knobTo(knobId, 0, 0);
+    onEnd();
+  }
+  if (typeof window !== 'undefined' && window.PointerEvent) {
+    base.addEventListener('pointerdown', down);
+    base.addEventListener('pointermove', move);
+    base.addEventListener('pointerup', up);
+    base.addEventListener('pointercancel', up);
+    base.addEventListener('lostpointercapture', up);
+  } else {
+    base.addEventListener('touchstart', down);
+    base.addEventListener('touchmove', move);
+    base.addEventListener('touchend', up);
+    base.addEventListener('touchcancel', up);
+    base.addEventListener('mousedown', down);
+    base.addEventListener('mousemove', move);
+    base.addEventListener('mouseup', up);
+    base.addEventListener('mouseleave', up);
+  }
+}
 function isTouchDevice() {
   if (typeof window === 'undefined') return false;
   var nav = window.navigator;
@@ -215,6 +293,15 @@ function setupTouch() {
       }
     })(TOUCH_BTNS[i][0], TOUCH_BTNS[i][1]);
   }
+  bindStick('st-move', 'st-move-k', function (nx, ny, n) {
+    padMove.on = n > 0.12; padMove.x = nx; padMove.y = ny;
+  }, function () { padMove.on = false; padMove.x = 0; padMove.y = 0; });
+
+  bindStick('st-aim', 'st-aim-k', function (nx, ny, n) {
+    padAim.on = true;
+    if (n > 0.12) padAim.ang = Math.atan2(ny, nx);
+  }, function () { padAim.on = false; });
+
   var pause = el('t-pause');
   if (pause) pause.addEventListener('click', function () {
     if (G.scene === 'play') pauseGame();
@@ -778,15 +865,18 @@ function updatePlayer(dt) {
   if (keys.KeyD || keys.ArrowRight) ax += 1;
   if (keys.KeyW || keys.ArrowUp) ay -= 1;
   if (keys.KeyS || keys.ArrowDown) ay += 1;
-  if (touchMove) {
+  /* the stick wins while it is held; a loose drag on the arena still works otherwise */
+  if (touchMove && !padMove.on) {
     var tdx = touchMove.x - touchMove.ox, tdy = touchMove.y - touchMove.oy, td = hyp(tdx, tdy);
     if (td > 6) { var m = Math.min(1, td / 52); ax += tdx / td * m; ay += tdy / td * m; }
   }
+  if (padMove.on) { ax += padMove.x; ay += padMove.y; }
   var al = hyp(ax, ay);
   if (al > 1) { ax /= al; ay /= al; }
 
   /* aim */
-  if (touchFire) p.aim = Math.atan2(touchFire.y - (p.y - G.cam.y), touchFire.x - (p.x - G.cam.x));
+  if (padAim.on) p.aim = padAim.ang;
+  else if (touchFire) p.aim = Math.atan2(touchFire.y - (p.y - G.cam.y), touchFire.x - (p.x - G.cam.x));
   else if (mouse.used && mouse.inside) p.aim = Math.atan2(mouse.y - (p.y - G.cam.y), mouse.x - (p.x - G.cam.x));
   else if (al > 0.1) p.aim = Math.atan2(ay, ax);
 
@@ -829,7 +919,7 @@ function updatePlayer(dt) {
 
   /* firing */
   p.fireCd -= dt;
-  var firing = mouse.down || keys.Space || !!touchFire;
+  var firing = mouse.down || keys.Space || !!touchFire || padAim.on;
   if (firing && p.fireCd <= 0) {
     p.fireCd = s.rate;
     var n = s.shots;
@@ -2031,8 +2121,9 @@ function setScene(name) {
   }
   if (name !== 'play') {
     mouse.down = false; touchFire = null; touchMove = null;
-    /* a finger still down on a button when a menu opens must not stay held */
+    /* a finger still down on a stick or button when a menu opens must let go */
     for (var ti = 0; ti < TOUCH_BTNS.length; ti++) keys[TOUCH_BTNS[ti][1]] = false;
+    padReset();
   }
   if (name !== 'play' && name !== 'pause') { el('toast').classList.remove('on'); G.toastT = 0; }
   updateProgLine();

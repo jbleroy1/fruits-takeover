@@ -39,15 +39,23 @@ body.istouch #touch.on{display:block}
   text-shadow:0 2px 0 rgba(0,0,0,.55);touch-action:none;
   user-select:none;-webkit-user-select:none;transition:background .06s}
 .tbtn.on,.tbtn:active{background:rgba(255,255,255,.4);border-color:#fff;transform:scale(.96)}
-.tbtn.pad{width:13%;font-size:clamp(11px,2.3vw,23px)}
-#t-up{left:12.5%;bottom:25%} #t-down{left:12.5%;bottom:4%}
-#t-left{left:1%;bottom:14.5%} #t-right{left:24%;bottom:14.5%}
-#t-fire{right:1.5%;bottom:4%;width:20%;font-size:clamp(9px,1.7vw,16px);
-  background:rgba(255,122,61,.28);border-color:rgba(255,190,150,.65)}
-#t-dash{right:23.5%;bottom:7%;width:15%;font-size:clamp(9px,1.7vw,16px);
+/* two thumb sticks in the corners: your fingers stay out of the arena */
+.stick{position:absolute;width:19.5%;aspect-ratio:1;border-radius:50%;pointer-events:auto;touch-action:none;
+  background:radial-gradient(circle,rgba(255,255,255,.10),rgba(255,255,255,.035));
+  border:2px solid rgba(255,255,255,.26);box-shadow:inset 0 0 22px rgba(0,0,0,.25)}
+.stick.on{border-color:rgba(255,255,255,.75);background:radial-gradient(circle,rgba(255,255,255,.17),rgba(255,255,255,.05))}
+#st-move{left:2%;bottom:5%} #st-aim{right:2%;bottom:5%}
+.knob{position:absolute;pointer-events:none;left:50%;top:50%;transform:translate(-50%,-50%);width:48%;height:48%;
+  border-radius:50%;background:rgba(255,255,255,.26);border:2px solid rgba(255,255,255,.6);
+  box-shadow:0 2px 12px rgba(0,0,0,.45)}
+#st-aim .knob{background:rgba(255,122,61,.45);border-color:rgba(255,196,160,.85)}
+.slabel{position:absolute;pointer-events:none;left:50%;bottom:10%;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--f-ui);font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.45);
+  font-size:clamp(6.5px,1vw,10px)}
+#t-dash{right:26.5%;bottom:7%;width:15%;font-size:clamp(9px,1.7vw,16px);
   background:rgba(126,227,106,.26);border-color:rgba(190,245,175,.6)}
 .tbtn.sys{width:9%;font-size:clamp(8px,1.5vw,15px);background:rgba(0,0,0,.42);border-color:rgba(255,255,255,.22)}
-#t-pause{left:43.5%;bottom:21%} #t-full{left:52.5%;bottom:21%}
+#t-pause{left:28.5%;bottom:9%} #t-full{left:39%;bottom:9%}
 @media (hover:none) and (pointer:coarse){ #touch.on{display:block} }
 
 .hud{position:absolute;inset:0;pointer-events:none;font-size:clamp(9px,1.25vw,13px)}
@@ -185,11 +193,8 @@ body.istouch canvas{cursor:none}
     <canvas id="c" width="960" height="540"></canvas>
 
     <div id="touch">
-      <div class="tbtn pad" id="t-up">&#9650;</div>
-      <div class="tbtn pad" id="t-down">&#9660;</div>
-      <div class="tbtn pad" id="t-left">&#9664;</div>
-      <div class="tbtn pad" id="t-right">&#9654;</div>
-      <div class="tbtn" id="t-fire">FIRE</div>
+      <div class="stick" id="st-move"><i class="knob" id="st-move-k"></i><span class="slabel">MOVE</span></div>
+      <div class="stick" id="st-aim"><i class="knob" id="st-aim-k"></i><span class="slabel">AIM &amp; FIRE</span></div>
       <div class="tbtn" id="t-dash">DASH</div>
       <div class="tbtn sys" id="t-pause">| |</div>
       <div class="tbtn sys" id="t-full">[ ]</div>
@@ -315,8 +320,8 @@ body.istouch canvas{cursor:none}
         <div><kbd>Shift</kbd> &mdash; dash: brief invincibility, shakes off rot</div>
         <div><kbd>P</kbd> / <kbd>Esc</kbd> &mdash; pause</div>
         <div><kbd>M</kbd> &mdash; mute</div>
-        <div><b>Phone / tablet:</b> the <b>D-pad</b>, <b>FIRE</b> and <b>DASH</b> buttons appear on screen,
-          with <b>| |</b> to pause and <b>[ ]</b> for fullscreen</div>
+        <div><b>Phone / tablet:</b> two thumb sticks appear in the corners &mdash; <b>left to move</b>,
+          <b>right to aim and fire</b> &mdash; plus <b>DASH</b>, <b>| |</b> pause and <b>[ ]</b> fullscreen</div>
         <div><b>Touch, the free way:</b> drag the left half to move, hold the right half to aim and fire</div>
         <div><b>Rot</b> builds on contact and eats your life until you dash it off</div>
       </div>
@@ -327,7 +332,7 @@ body.istouch canvas{cursor:none}
 
   <div class="under">
     <span id="progline">&nbsp;</span>
-    <span class="footnote">Keyboard + mouse, or touch: on a phone or tablet the D-pad, FIRE and DASH buttons appear by themselves. Sound starts after your first tap.</span>
+    <span class="footnote">Keyboard + mouse, or touch: on a phone or tablet two thumb sticks and a DASH button appear by themselves. Sound starts after your first tap.</span>
   </div>
 </div>
 <script src="game.js"></script>

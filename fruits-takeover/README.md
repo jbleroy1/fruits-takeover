@@ -4,7 +4,8 @@ A 2D top-down survival shooter. The orchard took the world; you are the last Jui
 **30 levels**: 10 base, 10 normal, and 10 bonus levels that alternate mini-bosses with vault key hunts.
 
 **[Play it here](https://jbleroy1.github.io/fruits-takeover/fruits-takeover/)** — no install, and it
-works on a tablet: the on-screen D-pad, FIRE and DASH buttons appear by themselves.
+works on a tablet: two thumb sticks and a DASH button appear by themselves, down in the corners
+where your hands do not cover the fruit.
 
 No build step, no runtime dependencies. Open `index.html` in a browser, or serve it locally:
 
@@ -16,6 +17,14 @@ node tools/serve.js 3000  # or choose your own port
 The only requirement is **Node.js 18+** (installed here at `~/.local/bin/node`), and only for the
 local server and the tests — the game itself is plain HTML, CSS and JavaScript with no packages
 to install. There is no `node_modules`; `npm install` is not needed.
+
+## On a phone or tablet
+
+The game notices a touch screen and lays its own controls over the arena, in the corners so your
+thumbs stay out of the action: a **left stick to move**, a **right stick that aims and fires while
+you hold it**, and a **DASH** button — dashing is the only way to shake rot off, and it used to be
+reachable by keyboard only. `| |` pauses and `[ ]` goes fullscreen. The free-form touch controls
+still work too: drag anywhere on the left half to move, hold the right half to aim and fire.
 
 ## The idea behind the fighting
 
@@ -34,7 +43,7 @@ or scrub it with a salt packet. Standing still is what kills you; the fruit is j
 | Pause | `P` or `Esc` |
 | Mute | `M` |
 | Touch | drag the left half to move, hold the right half to aim and fire |
-| Phone / tablet | on-screen buttons: D-pad, **FIRE**, **DASH**, `| |` pause, `[ ]` fullscreen |
+| Phone / tablet | two **thumb sticks** in the corners — left to move, right to aim and fire — plus **DASH**, `| |` pause, `[ ]` fullscreen |
 | Back to the arcade | the **← ARCADE** link on the title screen and in the pause menu |
 
 ## The 30 levels
