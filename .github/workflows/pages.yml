@@ -1,0 +1,49 @@
+name: Test and publish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Bot-play the game
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: UI flow, saving, unlocking, tablet controls, every hero
+        run: npm test
+      - name: Every one of the 154 levels, as Sonic
+        run: node tools/harness.js game.js all
+
+  deploy:
+    name: Publish to GitHub Pages
+    # Pages needs a public repo (or a paid plan). While this repo is private the
+    # job skips quietly instead of failing; make the repo public and it runs.
+    if: ${{ github.event.repository == null || github.event.repository.private == false }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4

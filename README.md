@@ -1,5 +1,8 @@
 # Sonic 4: Shattered Horizon
 
+**[Play it here](https://jbleroy1.github.io/fruits-takeover/)** (once GitHub Pages is switched on for
+this repository) — or clone it and run `npm start`.
+
 A 2D side-scrolling platformer. Dr. Eggman shattered the sky into **17 zones**; four heroes run,
 fly, glide and hammer their way back across it.
 
@@ -173,6 +176,15 @@ bosses it closes in, jumps on the hull and backs off while they flash. It plays 
 and no knockback, so these runs test that every level is **completable**, not that it is easy —
 `flow`, `heroes`, `main`, `branch` and `all` should all finish with everything cleared.
 
+## Publishing
+
+The game is plain static files, so GitHub Pages serves it as-is — no build step, nothing to
+configure. `.github/workflows/pages.yml` runs the test suites on every push and then publishes the
+repository root to Pages, enabling Pages itself the first time it runs. That deploy job is skipped
+while the repository is private (free Pages needs a public repository), so if the play link above is
+dead: make the repository public under **Settings → General → Change repository visibility**, then
+re-run the workflow from the **Actions** tab. The link becomes live a minute later.
+
 ## Adding to the game
 
 - **A zone**: add an entry to `ZONES` in `game.js` (name, theme, palette, badnik mix, hazard look).
@@ -186,3 +198,10 @@ and no knockback, so these runs test that every level is **completable**, not th
   functions, `updateColossus` and `drawColossus`.
 - **A level feature**: add a weight in the `feats` table in `genHoriz` and a branch that builds it.
   Push a waypoint with `addRoute` so the test bot knows the way through.
+
+## About this project
+
+A fan game, made for fun and not for sale. Sonic, Tails, Knuckles, Amy and Dr. Eggman are
+trademarks of SEGA; this project is not affiliated with or endorsed by SEGA, and it uses none of
+their assets — every sprite here is drawn with canvas shapes in `game.js` and every sound is
+synthesised with the Web Audio API.
