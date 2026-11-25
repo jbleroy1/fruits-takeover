@@ -39,23 +39,23 @@ const irnd = (R, a, b) => a + Math.floor(R() * (b - a + 1));
 /* ------------------------------- characters ------------------------------ */
 const CHARS = {
   sonic: {
-    key:'sonic', name:'Sonic', title:'The Blue Blur', ability:'Spin Dash',
-    blurb:'Fastest of the four. Hold DOWN and tap JUMP to charge a spin dash, then let go.',
+    key:'sonic', name:'Sonic', title:'The Blue Blur', ability:'Spin Dash + Air Dash',
+    blurb:'Fastest of the four. Hold DOWN and tap JUMP to charge a spin dash. Double jump, then X in the air to dash forward.',
     top:660, acc:1560, jump:800, col:'#2f6ff2', col2:'#1b3f9c', skin:'#f4c08a', shoe:'#e03a2f'
   },
   tails: {
     key:'tails', name:'Tails', title:'Twin-Tailed Genius', ability:'Flight',
-    blurb:'Press JUMP again in mid-air to fly for a few seconds. Great for skipping pits.',
+    blurb:'Double jump like everyone, then hold X in the air to fly for a few seconds.',
     top:540, acc:1340, jump:760, col:'#f59324', col2:'#b45c0c', skin:'#ffe0b2', shoe:'#e8482f'
   },
   knuckles: {
     key:'knuckles', name:'Knuckles', title:'Guardian of the Shards', ability:'Glide & Climb',
-    blurb:'Press JUMP again in mid-air to glide. Hit a wall while gliding to cling and climb it.',
+    blurb:'Double jump, then hold X in the air to glide. Hit a wall while gliding to cling and climb it.',
     top:560, acc:1420, jump:720, col:'#d8322f', col2:'#8d1a18', skin:'#f4c08a', shoe:'#1f8f4a'
   },
   amy: {
     key:'amy', name:'Amy', title:'Piko Hammer Champion', ability:'Hammer Swing',
-    blurb:'Press ATTACK (X) to swing the Piko Hammer. It smashes badniks and cracked blocks.',
+    blurb:'Press X to swing the Piko Hammer - it smashes badniks and cracked blocks. Double jump too.',
     top:580, acc:1450, jump:755, col:'#f368a8', col2:'#a8296c', skin:'#f4c08a', shoe:'#e6444f'
   }
 };
@@ -913,7 +913,7 @@ function updatePlayer(dt) {
     if (p.gliding) {
       if (dir) p.face = dir;
       p.vx = p.face * 430;
-      if (!A.jump) { p.gliding = false; }
+      if (!A.attack) { p.gliding = false; }
     } else {
       if (dir) { p.face = p.flying || Math.abs(p.vx) < 40 ? dir : p.face; p.vx += dir * AIR_ACC * dt; }
       p.vx = clamp(p.vx, -topSp * 1.1, topSp * 1.1);
@@ -926,16 +926,23 @@ function updatePlayer(dt) {
     p.vy = -jumpV; p.onGround = false; p.jumping = true; p.airUsed = false;
     if (p.roll) p.jumping = true;
     sfx('jump');
-  } else if (P.jump && !p.onGround && !p.airUsed && !p.flying && !p.gliding) {
-    p.airUsed = true;
-    if ((p.char === 'tails' || superFly) && p.flyT > 0) { p.flying = true; p.airUsed = false; sfx('fly'); }
-    else if (p.char === 'knuckles') { p.gliding = true; p.vy = Math.max(p.vy, 40); sfx('glide'); }
-    else if (p.char === 'amy') { p.vy = -jumpV * 0.74; p.attack = 0.3; sfx('hammer'); }
-    else { p.vx = p.face * 760; p.vy = Math.min(p.vy, 0) * 0.3 - 80; p.dashing = 0.3; p.jumping = true; sfx('dash'); }
+  } else if (P.jump && !p.onGround && !p.airUsed && !p.flying) {
+    /* double jump - every hero has one, and it cancels a glide */
+    p.airUsed = true; p.jumping = true; p.roll = false; p.gliding = false;
+    p.vy = -jumpV * 0.84;
+    sfx('jump'); puff(p.x, p.y + 12, '#dfe9f2', 12);
+  }
+  /* each hero's own move is on the attack button in mid-air */
+  if (P.attack && !p.onGround && !p.flying) {
+    if ((p.char === 'tails' || superFly) && p.flyT > 0) { p.flying = true; sfx('fly'); }
+    else if (p.char === 'knuckles' && !p.gliding) { p.gliding = true; p.vy = Math.max(p.vy, 40); sfx('glide'); }
+    else if (p.char === 'sonic') {
+      p.vx = p.face * 760; p.vy = Math.min(p.vy, 0) * 0.3 - 80; p.dashing = 0.3; p.jumping = true; sfx('dash');
+    }
   }
   if (p.flying) {
     if (!superFly) p.flyT -= dt;
-    if (A.jump && p.flyT > 0) p.vy = Math.max(p.vy - 1500 * dt, -175);
+    if (A.attack && p.flyT > 0) p.vy = Math.max(p.vy - 1500 * dt, -175);
     if (p.flyT <= 0) { p.flying = false; }
   }
   if (p.jumping && !A.jump && p.vy < -jumpV * 0.45 && !p.flying) p.vy = -jumpV * 0.45;

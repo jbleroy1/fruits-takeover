@@ -398,6 +398,34 @@ function flowTest() {
   expect('and comes back when you are playing', !els['touch'].classList.contains('hide'));
   expect('visibly', els['touch'].style.display === '', JSON.stringify(els['touch'].style.display));
 
+  console.log('flow: the double jump, and each hero\'s own move on X');
+  for (const k of ['sonic','tails','knuckles','amy']) {
+    setChar(k);
+    prepareLevel(0, true); resetBot(); beginPlay();
+    hold(new Set());
+    for (let f = 0; f < 12; f++) tick();                 // settle on the ground
+    keyDown('Space'); tick(); keyUp('Space');
+    for (let f = 0; f < 10; f++) tick();                 // in the air now
+    const vy0 = G.player.vy, y0 = G.player.y;
+    keyDown('Space'); tick(); keyUp('Space');
+    expect(CHARS[k].name + ' double jumps in mid-air',
+      !G.player.onGround && G.player.vy < vy0 - 150 && G.player.vy < 0,
+      'vy ' + vy0.toFixed(0) + ' -> ' + G.player.vy.toFixed(0));
+    for (let f = 0; f < 6; f++) tick();
+    expect('and it lifts ' + CHARS[k].name + ' higher', G.player.y < y0, 'y ' + y0.toFixed(0) + ' -> ' + G.player.y.toFixed(0));
+    keyDown('Space'); tick(); keyUp('Space');
+    expect(CHARS[k].name + ' only gets one double jump per jump', G.player.vy > -200 || G.player.airUsed === true);
+    /* the hero's own move is on X now */
+    keyDown('KeyX'); tick();
+    const p = G.player;
+    const moved = k === 'tails' ? p.flying : k === 'knuckles' ? p.gliding : k === 'sonic' ? p.dashing > 0 : p.attack > 0;
+    expect(CHARS[k].name + "'s own move answers X in mid-air", moved,
+      'flying=' + p.flying + ' gliding=' + p.gliding + ' dashing=' + p.dashing.toFixed(2) + ' attack=' + p.attack.toFixed(2));
+    keyUp('KeyX');
+    hold(new Set());
+  }
+  setChar('sonic');
+
   console.log('flow: every hero can clear an act');
   for (const k of ['sonic','tails','knuckles','amy']) {
     setChar(k);

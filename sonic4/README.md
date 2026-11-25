@@ -25,12 +25,15 @@ local server and the tests — the game itself is plain HTML, CSS and JavaScript
 
 ## The four heroes
 
-| Hero | Speed | Second ability |
+**All four have a double jump**: press jump again in mid-air, from any of them. Their own move sits on
+the attack button instead:
+
+| Hero | Speed | Own move |
 |---|---|---|
-| **Sonic** | fastest | **Spin Dash** — hold `↓`, tap jump to charge, release `↓` to fire. Jump again in mid-air for an air dash. |
-| **Tails** | medium | **Flight** — press jump again in mid-air and hold to fly for about three seconds. |
-| **Knuckles** | medium | **Glide & Climb** — press jump again in mid-air to glide; hit a wall to cling, then `↑`/`↓` to climb and jump off. |
-| **Amy** | medium | **Piko Hammer** — `X` swings it; it smashes badniks and cracked blocks. Jumping again in mid-air is a hammer hop. |
+| **Sonic** | fastest | **Spin Dash** — hold `↓`, tap jump to charge, release `↓` to fire. **`X` in mid-air** dashes forward. |
+| **Tails** | medium | **Flight** — hold **`X` in mid-air** to fly for about three seconds. |
+| **Knuckles** | medium | **Glide & Climb** — hold **`X` in mid-air** to glide; hit a wall to cling, then `↑`/`↓` to climb and jump off. |
+| **Amy** | medium | **Piko Hammer** — **`X`** swings it, on the ground or in the air; it smashes badniks and cracked blocks. |
 
 Switch hero any time from the zone map. Progress is shared, so a level cleared with Tails stays
 cleared for everyone.
@@ -43,7 +46,8 @@ cleared for everyone.
 | Jump | `Space`, `W`, `↑`, `Z` or `K` |
 | Roll / crouch | `S` or `↓` (roll while running) |
 | Attack | `X`, `J` or `Shift` |
-| Second ability | jump again in mid-air |
+| Double jump | jump again in mid-air — every hero has one |
+| Hero's own move | `X` in mid-air (dash, flight, glide) |
 | Pause | `P` or `Esc` |
 | Restart level | `R` |
 | Mute | `M` |
